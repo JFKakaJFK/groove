@@ -8,7 +8,6 @@ function notify(msg: String){
 }
 
 template styled(){
-  // <!-- TODO figure out how to favicon -->
   includeCSS("./theme.css")
 
   <div id="__styled" class="min-h-screen subpixel-antialiased" data-theme="dracula" all attributes>

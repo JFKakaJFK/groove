@@ -17,7 +17,6 @@ ajax template ajaxhabitsoverview(parent: Placeholder, u: User){
     replace(parent, ajaxhabitsoverview(parent, u));
   }
 
-  // TODO range change input
   <div>
     form[class="contents"]{
       <div class="form-control">
