@@ -8,10 +8,8 @@ ajax template signin(){
   var password : Secret := ""
   var rememberMe := false
   
-  <div class="card w-full max-w-sm shadow-2xl flex-shrink-0 bg-base-100" all attributes>
-    form[class="card-body"] {
-      <h2 class="card-title">"Sign in"</h2>
-
+  card("Sign in")[class="!max-w-md"]{
+    form[class="contents"] {
       <div class="form-control">
         <label class="label">
             <span class="label-text">"Email"</span>
@@ -47,7 +45,7 @@ ajax template signin(){
             </span>
       </div>
     }
-  </div>
+  }
 
   action login(){
     getSessionManager().stayLoggedIn := rememberMe;

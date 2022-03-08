@@ -16,6 +16,7 @@ entity Day {
 	function toggle(){
 		if(completed){
 			completed := false;
+			habit.completions.remove(completion);
 			completion.delete();
 			habit.save();
 			completion := null;
@@ -31,7 +32,7 @@ entity Day {
 
 entity Habit {
 	name: String (searchable)
-	start: Date (searchable, default = today(), not null)
+	//start: Date (searchable, default = today(), not null)
 	description: Text (searchable, default = "")
 	color: Color (not null, default = randomColor(), allowed = from Color as c where c.premium = false or ~principal.isPremium() = true)
 	user: User (not null) // default = principal, // crashes if i want to init some habits as there is no principal...
@@ -40,13 +41,16 @@ entity Habit {
 	// the current streak could be kept track of as derived property-ish
 	// but modifications to the longest streak would need a re-scan of all completions anyway
 	// so to keep things "simple" this is a linear pass collecting max, current and avg streak lengths
-	cached function streakInfo(): StreakInfo {
+	// cached 
+	function streakInfo(): StreakInfo {
 		var current: DateRange := null;
 		var totalStreaks: Int := 0;
 		var totalStreakLength : Int := 0;
 		var longestStreak :Int := 0;
+		var start : Date := today();
 		
 		for(c: Completion in completions order by c.date asc){
+			if(c.date.before(start)){ start := c.date; }
 			// stat keeping for last streak
 			if (current != null && current.end.addDays(1).before(c.date)){
 				totalStreakLength := totalStreakLength + current.length;
@@ -85,7 +89,7 @@ entity Habit {
 			longest := longestStreak,
 			avg := avg,
 			current := currentStreak,
-			completionRate := totalStreakLength.floatValue() / daysBetween(start, today()).floatValue()
+			completionRate := (1000.0 * (totalStreakLength.floatValue() / daysBetween(start, today()).floatValue())).round().floatValue() / 10.0
 		};
 	}
 

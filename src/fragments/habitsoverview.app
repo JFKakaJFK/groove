@@ -6,63 +6,123 @@ imports src/theme
 imports src/fragments/completion
 
 session rangeSelection {
-  start: Date (default = (today().addDays(-14) as Date))
-  end: Date (default = today())
+  range: DateRange (default = DateRange{ start := (today().addDays(-14) as Date), end := today() })
+}
+
+// TODO style, edit
+template singleHabitOverview(parent: Placeholder, h: Habit){
+  action toggle(day: Day){
+    day.toggle();
+    replace(parent, ajaxhabitsoverview(parent, h.user));
+  }
+
+  var size: Int := 32
+  var streakInfo : StreakInfo := h.streakInfo()
+
+  <tr>
+    <th class="sticky left-0">
+      <span>output(h.name)</span>
+      <span>output(h.description)</span>
+    </th>
+    for(day : Day in h.completionRange(rangeSelection.range)){
+      <td class="!p-0">
+        // almost seems like it would work, but doesn't
+        // completion(day, { render{ replace(parent, ajaxhabitsoverview(parent, h.user)); } })
+        if(day.date.after(today())){
+          iCompletionSingle(size)[class="text-neutral-focus"]
+        } else if(h.user == principal) {
+          form[class="contents"]{
+            submit toggle(day)[ajax]{
+              completionHelper(day, size)
+            }
+          }
+        } else {
+          completionHelper(day, size)
+        }
+      </td>
+    }
+    <td>output(streakInfo.current)</td>
+    <td>output(streakInfo.completionRate)"%"</td>
+    <td>
+      button[class="sticky right-0 btn btn-circle"]{ "E" }
+    </td>
+  </tr>
 }
 
 ajax template ajaxhabitsoverview(parent: Placeholder, u: User){
-  var range : DateRange := DateRange{ start := rangeSelection.start, end := rangeSelection.end }
-
   action update(){
     replace(parent, ajaxhabitsoverview(parent, u));
   }
 
-  <div>
-    form[class="contents"]{
-      <div class="form-control">
-        <label class="label">
-          <span class="label-text">"Date range"</span>
-        </label>
-        <label class="input-group">
-          input( rangeSelection.start, now().addYears( -1 ), now())[class="input input-bordered"]{}
-          input( rangeSelection.end, now().addYears( -1 ), now())[class="input input-bordered"]{}
-          submit update()[ajax, class="btn"]{ "Update" }
-        </label>
-        validate(rangeSelection.start.before(rangeSelection.end), "Start must be before end")
-      </div>
-    }
-  </div>
-
-  action toggle(day: Day){
-    day.toggle();
+  action reset(){
+    rangeSelection.range := DateRange{ start := (today().addDays(-14) as Date), end := today() };
     replace(parent, ajaxhabitsoverview(parent, u));
   }
 
-  var size: Int := 24
-
-  for(h: Habit in u.habits){
-    <div>
-      <div>
-        <span>output(h.name)</span>
-        <span>output(h.description)</span>
-      </div>
-
-      <div class="grid grid-flow-col auto-cols-min place-content-center overflow-x-auto">
-        for(day : Day in h.completionRange(range)){
-          if(day.date.after(today())){
-            iCompletionSingle(size)[class="text-neutral-focus"]
-          } else if(u == principal) {
-            form[class="contents"]{
-              submit toggle(day)[ajax]{
-                completionHelper(day, size)
-              }
-            }
-          } else {
-            completionHelper(day, size)
-          }
-        }
-      </div>
+  card({ // card header
+    <div class="w-full flex flex-row items-center justify-end">
+      form[class="contents"]{
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">"Date range"</span>
+          </label>
+          <label class="input-group">
+            input( rangeSelection.range.start, now().addMonths( -3 ), rangeSelection.range.end.addDays(-1))[class="input input-bordered !rounded-l-lg", onchange="triggerSubmit('d~id')"]{}
+            input( rangeSelection.range.end, rangeSelection.range.start.addDays(1), now())[class="input input-bordered", onchange="triggerSubmit('d~id')"]{}
+            submit reset()[ajax, class="btn", title="Reset Selection"]{ iRefresh(24) }
+          </label>
+          validate(rangeSelection.range.start.before(rangeSelection.range.end), "Start must be before end")
+          submit update()[ajax, class="invisible", id := "d~id"]{ }
+        </div>
+      }
     </div>
+  }, { // card actions
+    // TODO new habit FAB
+    button[class="btn btn-circle"] { iAdd(32) }
+  }){ // card body
+    if(u.habits.length > 0){
+      <div class="mt-4 rounded-2xl !overflow-x-auto bg-base-100 w-full scrollbar-thin scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500 scrollbar-track-gray-800 scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
+        <table class="table w-full">
+          <!-- head -->
+          <thead>
+            <tr>
+              <th class="!rounded-none">
+                "Habits"
+              </th>
+              for(d: Date in rangeSelection.range.dates()){
+                <th class="relative !p-0 text-sm leading-none w-8">
+                  if(!d.before(today())){
+                    <div class="absolute z-10 -rotate-[75deg] bottom-2 p-1 bg-primary rounded-xl">
+                      <span>output(d.format("dd EEE"))</span>
+                    </div>
+                  } else {
+                    <div class="absolute z-10 -rotate-[75deg] bottom-2 p-1">
+                      <span>output(d.format("dd EEE"))</span>
+                    </div>
+                  }
+                </th>
+              }
+              <th>
+                "current streak"
+              </th>
+              <th>
+                "completion rate"
+              </th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            for(h: Habit in u.habits){
+              singleHabitOverview(parent, h)
+            }
+          </tbody>
+        </table>
+      </div>
+    } else {
+      <div class="grid place-items-center h-48">
+        <p>"No habits yet, create one first"</p>
+      </div>
+    }
   }
 }
 

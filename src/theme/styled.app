@@ -10,13 +10,15 @@ function notify(msg: String){
 template styled(){
   includeCSS("./theme.css")
 
-  <div id="__styled" class="min-h-screen subpixel-antialiased" data-theme="dracula" all attributes>
+  <div id="__styled" class="min-h-screen w-full subpixel-antialiased" data-theme="dracula" all attributes>
     elements
   </div>
 
 	placeholder "~G.notificationsId" { notifications() }
 
   <script type="text/javascript">
+		// helper for using JS events to trigger WebDSL submits
+		function triggerSubmit(id){ document.getElementById(id)?.click(); }
     // yes, I artificially show the loading indicator longer 
 		// than potentially necessary to prevent the UI from looking too "jumpy"
 		function delay(duration){ return new Promise((resolve,_) => setTimeout(resolve, duration)); }

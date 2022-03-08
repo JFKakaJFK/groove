@@ -17,11 +17,11 @@ template completionHelper(day: Day, size: Int){
   }
 }
 
-template completion(day: Day, parent: Placeholder){ completion(day, 24, parent)[all attributes] }
-template completion(day: Day, size: Int, parent: Placeholder){
+template completion(day: Day, update: TemplateElements){ completion(day, 24, update)[all attributes] }
+template completion(day: Day, size: Int, update: TemplateElements){
 	action toggle(d: Day){
 		d.toggle();
-		replace( parent );
+		rendertemplate( update() );
 	}
 	
 	if(day.date.after(today())){
