@@ -32,6 +32,8 @@ entity Day {
 
 entity Habit {
 	name: String (searchable)
+	// this would make sense in a production setting, but for testing it is more convenient to take
+	// the first completion as start (no completionrates > 100%)
 	//start: Date (searchable, default = today(), not null)
 	description: Text (searchable, default = "")
 	color: Color (not null, default = randomColor(), allowed = from Color as c where c.premium = false or ~principal.isPremium() = true)

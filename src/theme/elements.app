@@ -13,7 +13,7 @@ template card(title: String){ card({ <h2>title </h2> }, {})[all attributes]{elem
 template card(title: TemplateElements){ card(title, {})[all attributes]{elements} }
 // template card(title: String, actions: TemplateElements){card({ <h2>title </h2> }, actions)[all attributes]{elements} }
 template card(title: TemplateElements, actions: TemplateElements){
-  div[class="card w-full max-w-5xl bg-base-300 shadow-2xl", all attributes]{
+  div[class="card w-full max-w-5xl bg-base-300 shadow-xl", all attributes]{
     div[class="card-body"]{
       div[class="card-title"]{
         title

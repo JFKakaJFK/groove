@@ -49,6 +49,65 @@ template singleHabitOverview(parent: Placeholder, h: Habit){
   </tr>
 }
 
+ajax template editModal(mId: String, self: Placeholder, update: Placeholder, h: Habit){
+  action update(){
+    h.save();
+    notify("Changes saved successfully");
+    replace( self, editModal(mId, self, update, h) );
+    replace( update, ajaxSingleHabitOverview(update, h, mId, self) );
+  }
+
+  form[class="contents"]{
+    "Edit ~h.name"
+  }
+
+  modalActions(){
+    modalToggle(mId)[class="btn"]{ "Back" }
+    modalToggle(mId)[class="btn btn-primary", onclick := update()]{ "Update" }
+  }
+}
+
+ajax template ajaxSingleHabitOverview(parent: Placeholder, h: Habit, mId: String, mph: Placeholder){
+  action toggle(day: Day){
+    day.toggle();
+    replace(parent, ajaxSingleHabitOverview(parent, h, mId, mph));
+  }
+
+  action updateEditModal(){
+    replace( mph, editModal(mId, mph, parent, h) );
+  }
+
+  var size: Int := 32
+  var streakInfo : StreakInfo := h.streakInfo()
+
+  <th class="sticky left-0">
+    <span>output(h.name)</span>
+    <span>output(h.description)</span>
+  </th>
+  for(day : Day in h.completionRange(rangeSelection.range)){
+    <td class="!p-0">
+      if(day.date.after(today())){
+        iCompletionSingle(size)[class="text-neutral-focus"]
+      } else if(h.user == principal) {
+        form[class="contents"]{
+          submit toggle(day)[ajax]{
+            completionHelper(day, size)
+          }
+        }
+      } else {
+        completionHelper(day, size)
+      }
+    </td>
+  }
+  <td>output(streakInfo.current)</td>
+  <td>output(streakInfo.completionRate)"%"</td>
+  if(h.user == principal){
+    <td>
+      modalToggle(mId)[class="sticky right-0 btn btn-circle", onclick := updateEditModal()]{ "E" }
+    </td>
+  }
+}
+
 ajax template ajaxhabitsoverview(parent: Placeholder, u: User){
   action update(){
     replace(parent, ajaxhabitsoverview(parent, u));
@@ -108,16 +167,28 @@ ajax template ajaxhabitsoverview(parent: Placeholder, u: User){
               <th>
                 "completion rate"
               </th>
-              <th></th>
+              if(u == principal){
+                <th></th>
+              }
             </tr>
           </thead>
           <tbody>
             for(h: Habit in u.habits){
-              singleHabitOverview(parent, h)
+              placeholder <tr> ph {
+                ajaxSingleHabitOverview(ph, h, id, mph)
+                //singleHabitOverview(parent, h)
+              }
             }
           </tbody>
         </table>
       </div>
+
+      modal(id, "Edit"){
+        placeholder mph {
+          
+        }
+      }
+      // TODO have edit modal // toggle onclick sets habit target => one modal enough?! 
     } else {
       <div class="grid place-items-center h-48">
         <p>"No habits yet, create one first"</p>
@@ -133,4 +204,6 @@ template habitsoverview(u: User){
 }
 
 access control rules
+  rule ajaxtemplate editModal(mId: String, self: Placeholder, update: Placeholder, h: Habit){ loggedIn() && (h.user == principal) }
+  rule ajaxtemplate ajaxSingleHabitOverview(parent: Placeholder, h: Habit, mId: String, mph: Placeholder){ loggedIn() && (h.user == principal || principal.isAdmin()) }
   rule ajaxtemplate ajaxhabitsoverview(parent: Placeholder, u: User){ loggedIn() && (u == principal || principal.isAdmin()) }
