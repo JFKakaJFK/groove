@@ -21,6 +21,7 @@ The application I set out to build is a habit tracker. The goal is to have a con
 - Another weird thing is that I choose to split up the code in A LOT of files making in IMHO more manageable, BUT introducing loads of cyclic dependencies
   - e.g. of course I could define e.g habit + completion in one file avoiding an otherwise necessary cyclic dependency but I first had all entities in one file and that was very confusing
 - Trying to turn the site into something alike a SSR SPA made parts of the code very not KISS and DRY, I fully agree but I wanted to how far I can turn WebDSL into something it is not intended for.
+  - I often (very often) needed to let ajax placeholders know about their context, somewhat going against the idea that ajax templates are pages which know nothing about their context
 
 
 - Using webdsl how it is intended

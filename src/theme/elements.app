@@ -62,7 +62,7 @@ template modal(mId: String){ modal(mId, "")[all attributes]{ elements } }
 template modal(mId: String, title: String){
 	<input type="checkbox" id="~mId" class="modal-toggle" />
 	<div class="modal">
-	  <div class="modal-box" all attributes>
+	  <div class="modal-box overflow-y-visible" all attributes>
   		if(title.length() > 0){
   			<h3 class="font-bold text-lg mb-4">output(title)</h3>
   		}

@@ -9,80 +9,221 @@ session rangeSelection {
   range: DateRange (default = DateRange{ start := (today().addDays(-14) as Date), end := today() })
 }
 
-// TODO style, edit
-template singleHabitOverview(parent: Placeholder, h: Habit){
-  action toggle(day: Day){
-    day.toggle();
-    replace(parent, ajaxhabitsoverview(parent, h.user));
-  }
+template input( c: ref Color ){
+  var req := getRequestParameter ( id )
 
-  var size: Int := 32
-  var streakInfo : StreakInfo := h.streakInfo()
+  request var errors: [String] := null // keeps value even if validation fails
 
-  <tr>
-    <th class="sticky left-0">
-      <span>output(h.name)</span>
-      <span>output(h.description)</span>
-    </th>
-    for(day : Day in h.completionRange(rangeSelection.range)){
-      <td class="!p-0">
-        // almost seems like it would work, but doesn't
-        // completion(day, { render{ replace(parent, ajaxhabitsoverview(parent, h.user)); } })
-        if(day.date.after(today())){
-          iCompletionSingle(size)[class="text-neutral-focus"]
-        } else if(h.user == principal) {
-          form[class="contents"]{
-            submit toggle(day)[ajax]{
-              completionHelper(day, size)
-            }
-          }
-        } else {
-          completionHelper(day, size)
-        }
-      </td>
+  if( errors != null && errors.length > 0 ){
+    errorTemplateInput( errors ){
+      inputColorInternal( c, id )[ all attributes ]  // use same id so the inputs are updated in both cases
+      validate{ getPage().enterLabelContext( id ); }
+      elements
+      validate{ getPage().leaveLabelContext(); }
     }
-    <td>output(streakInfo.current)</td>
-    <td>output(streakInfo.completionRate)"%"</td>
-    <td>
-      button[class="sticky right-0 btn btn-circle"]{ "E" }
-    </td>
-  </tr>
+  }
+  else{
+    inputColorInternal( c, id )[ all attributes ]
+    validate{ getPage().enterLabelContext( id ); }
+    elements
+    validate{ getPage().leaveLabelContext(); }
+  }
+  validate{
+    if ( req != null ){
+      var picked := findColor(req);
+      log(req); log(picked);
+      if( picked == null ) {
+        errors := [ "Not a valid color." ];
+      } else if ( picked.premium && (!loggedIn() || !principal.isPremium()) ){
+        errors := [ "This color is not allowed" ];
+      }
+    }
+    if(errors == null){
+      errors := c.getValidationErrors();
+      errors.addAll( getPage().getValidationErrorsByName( id ) ); //nested validate elements
+    }
+    errors := handleValidationErrors( errors );
+  }
 }
 
-ajax template editModal(mId: String, self: Placeholder, update: Placeholder, h: Habit){
-  action update(){
-    h.save();
-    notify("Changes saved successfully");
-    replace( self, editModal(mId, self, update, h) );
-    replace( update, ajaxSingleHabitOverview(update, h, mId, self) );
+template inputColorInternal( c: ref Color, rname: String){
+  // input is not nullable as that makes little sense for the use cases
+  var req: String := getRequestParameter( rname )
+
+  // hidden input, value to be set is c.id of selected color using js, req does databind
+  <input id=id type="hidden" name=rname value=c.value />
+	
+	<div class="dropdown dropdown-end">
+	  <label tabindex="0" id="l~id" style="background:~c.value;" class="grid w-12 h-12 pointer" all attributes>elements</label>
+	  <div tabindex="0" class="dropdown-content card card-compact w-64 p-2 shadow bg-neutral text-neutral-content !rounded-lg">
+	    <div class="card-body">
+	      <h3 class="card-title">"Pick a color"</h3>
+	      <div class="grid gap-4 grid-cols-[repeat(auto-fill,_minmax(1.5rem,_1fr))]">
+	      	for(col: Color){
+	      		if(!col.premium || principal.isPremium()){
+              <button
+                type="button" 
+                class="w-6 h-6 !rounded grid place-items-center"
+                style="background:~col.value;"
+                onclick="document.getElementById('~id').value = '~col.value';document.getElementById('l~id').style.background = '~col.value';"
+              ></button>
+	      		} else {
+	      			<div class="w-6 h-6 !rounded grid place-items-center" style="background:~col.value;">
+	      				iLock(16)
+	      			</div>	
+	      		}
+	      	}
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+  databind{
+    if( req != null ){
+      // protect against tampering
+      var picked := findColor(req);
+      if ( picked != null && c != picked ){
+        c := picked;
+      }
+    }
+  }
+}
+
+// be prepared for a lot (and I mean A LOT) of placeholder passing (React calls this prop drilling I think)
+// One workaround would be passing down an entity with all the placeholder ids as strings but that would not be
+// more generic and static string ids are not ideal either...
+
+// the habit overview has a date range selection to see a custom range of habit completions,
+// lists each habit and allows adding habits.
+// the completions of each habit can be changed as well as the habit itself can be edited
+// if we only want to update what we need to, thats a lot of ajax templates (which need to know about each other)
+
+ajax template addHabitModal(mId: String, self: Placeholder, parent: Placeholder){
+  var name : String := ""
+  var description : Text := ""
+  request var color : Color := null
+  init {
+    if(color == null){
+      color := randomColor();
+    }
+  }
+  
+  action save(){
+    var h: Habit := Habit{
+			user := principal,
+			name := name,
+			description := description,
+			color := color
+		};
+    principal.habits.add(h);
+    principal.save();
+    notify("Habit added successfully");
+    replace( parent, ajaxhabitsoverview(parent, principal) );
+    replace( self, addHabitModal(mId, self, parent));
+    runscript("document.getElementById('~mId').checked = false;");
   }
 
   form[class="contents"]{
-    "Edit ~h.name"
-  }
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text">"Name"</span>
+      </label>
+      <div class="input-group">
+        inputajax(name)[class="input input-bordered flex-1"] {}
+        input(color)[class="!rounded-l-none !rounded-r"]{}
+      </div>
+      validate(!name.isNullOrEmpty(), "Required")
+      validate((from Habit as h where h.name = ~name and h.user = ~principal limit 1).length == 0, "You already have a habit with this name")
+    </div>
+    
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text">"Description"</span>
+      </label>
+      input(description)[class="textarea textarea-bordered"] {}
+    </div>
 
-  modalActions(){
-    modalToggle(mId)[class="btn"]{ "Back" }
-    modalToggle(mId)[class="btn btn-primary", onclick := update()]{ "Update" }
+    submit save()[ajax, class="hidden", id := "s~id"]{}
+  
+    modalToggle(mId)[class="hidden", id := "t~id"]{}
+
+    modalActions{
+      modalToggle(mId)[class="btn"]{ "Back" }
+      //modalToggle(mId)[class="btn btn-primary", onclick="triggerSubmit('s~id')"]{ "Save Habit" }
+      submit save()[ajax, class="btn btn-primary"]{ "Save Habit" }
+    }
   }
 }
 
-ajax template ajaxSingleHabitOverview(parent: Placeholder, h: Habit, mId: String, mph: Placeholder){
+ajax template editHabitModal(mId: String, self: Placeholder, update: Placeholder, overview: Placeholder, h: Habit){
+  action update(){
+    notify("Changes saved successfully");
+    replace( self, editHabitModal(mId, self, update, overview, h) );
+    replace( update, ajaxSingleHabitOverview(overview, update, h, mId, self) );
+    runscript("document.getElementById('~mId').checked = false;");
+  }
+
+  action delete(){
+    h.user.habits.remove(h);
+		principal.save();
+		notify("Changes saved successfully");
+    // deletion needs to do a "full" update
+    replace( overview, ajaxhabitsoverview(overview, principal) );
+  }
+
+  form[class="contents"]{
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text">"Name"</span>
+      </label>
+      <div class="input-group">
+        inputajax(h.name)[class="input input-bordered flex-1"] {}
+        input(h.color)[class="!rounded-l-none !rounded-r"]{}
+      </div>
+      validate(!h.name.isNullOrEmpty(), "Required")
+      // we need to allow each name at least once or it won't work to save a habit ever again...
+      validate((from Habit as h where h.name = ~h.name and h.user = ~principal limit 2).length <= 1, "You already have a habit with this name")
+    </div>
+    
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text">"Description"</span>
+      </label>
+      input(h.description)[class="textarea textarea-bordered"] {}
+    </div>
+
+    submit update()[ajax, class="hidden", id="u~id"]{}
+  }
+
+  modalToggle(mId)[class="invisible", id := "d~id", onclick := delete()]{ }
+
+  modalToggle(mId)[class="hidden", id := "t~id"]{}
+
+  modalActions(){
+    modalToggle(mId)[class="btn"]{ "Back" }
+    button[class="btn btn-error", onclick="if(confirm('Are you sure?')){triggerSubmit('d~id');}"]{"Delete"}
+    //modalToggle(mId)[class="btn btn-primary", onclick="triggerSubmit('u~id');"]{ "Update" }
+    //submit update()[ajax, class="btn btn-primary"]{ "Update" }
+    button[class="btn btn-primary", onclick="triggerSubmit('u~id');"]{"Update"}
+  }
+}
+
+ajax template ajaxSingleHabitOverview(parent: Placeholder, self: Placeholder, h: Habit, mId: String, editPh: Placeholder){
   action toggle(day: Day){
     day.toggle();
-    replace(parent, ajaxSingleHabitOverview(parent, h, mId, mph));
+    replace(self, ajaxSingleHabitOverview(parent, self, h, mId, editPh));
   }
 
   action updateEditModal(){
-    replace( mph, editModal(mId, mph, parent, h) );
+    replace( editPh, editHabitModal(mId, editPh, self, parent, h) );
   }
 
   var size: Int := 32
   var streakInfo : StreakInfo := h.streakInfo()
 
-  <th class="sticky left-0">
-    <span>output(h.name)</span>
-    <span>output(h.description)</span>
+  <th class="sticky left-0 max-w-[120px] whitespace-normal">
+    <h4>output(h.name)</h4>
+    <p class="text-sm font-light">output(h.description)</p>
   </th>
   for(day : Day in h.completionRange(rangeSelection.range)){
     <td class="!p-0">
@@ -99,23 +240,27 @@ ajax template ajaxSingleHabitOverview(parent: Placeholder, h: Habit, mId: String
       }
     </td>
   }
-  <td>output(streakInfo.current)</td>
-  <td>output(streakInfo.completionRate)"%"</td>
+  <td class="text-center">output(streakInfo.current)</td>
+  <td class="text-center">output(streakInfo.completionRate)"%"</td>
   if(h.user == principal){
     <td>
-      modalToggle(mId)[class="sticky right-0 btn btn-circle", onclick := updateEditModal()]{ "E" }
+      modalToggle(mId)[class="sticky right-0 btn btn-circle", onclick := updateEditModal()]{ iEdit(24) }
     </td>
   }
 }
 
-ajax template ajaxhabitsoverview(parent: Placeholder, u: User){
+ajax template ajaxhabitsoverview(self: Placeholder, u: User){
   action update(){
-    replace(parent, ajaxhabitsoverview(parent, u));
+    replace(self, ajaxhabitsoverview(self, u));
   }
 
   action reset(){
     rangeSelection.range := DateRange{ start := (today().addDays(-14) as Date), end := today() };
-    replace(parent, ajaxhabitsoverview(parent, u));
+    replace(self, ajaxhabitsoverview(self, u));
+  }
+
+  action initAddModal(){
+    replace(addPh, addHabitModal("a~id", addPh, self));
   }
 
   card({ // card header
@@ -136,8 +281,7 @@ ajax template ajaxhabitsoverview(parent: Placeholder, u: User){
       }
     </div>
   }, { // card actions
-    // TODO new habit FAB
-    button[class="btn btn-circle"] { iAdd(32) }
+    modalToggle("a~id")[class="btn btn-circle", onclick:=initAddModal()]{ iAdd(32) }
   }){ // card body
     if(u.habits.length > 0){
       <div class="mt-4 rounded-2xl !overflow-x-auto bg-base-100 w-full scrollbar-thin scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500 scrollbar-track-gray-800 scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
@@ -161,11 +305,11 @@ ajax template ajaxhabitsoverview(parent: Placeholder, u: User){
                   }
                 </th>
               }
-              <th>
-                "current streak"
+              <th class="text-center">
+                "current"<br/>"streak"
               </th>
-              <th>
-                "completion rate"
+              <th class="text-center">
+                "completion"<br/>"rate"
               </th>
               if(u == principal){
                 <th></th>
@@ -174,9 +318,8 @@ ajax template ajaxhabitsoverview(parent: Placeholder, u: User){
           </thead>
           <tbody>
             for(h: Habit in u.habits){
-              placeholder <tr> ph {
-                ajaxSingleHabitOverview(ph, h, id, mph)
-                //singleHabitOverview(parent, h)
+              placeholder <tr> habitPh {
+                ajaxSingleHabitOverview(self, habitPh, h, id, editPh)
               }
             }
           </tbody>
@@ -184,15 +327,17 @@ ajax template ajaxhabitsoverview(parent: Placeholder, u: User){
       </div>
 
       modal(id, "Edit"){
-        placeholder mph {
-          
-        }
+        placeholder editPh {}
       }
-      // TODO have edit modal // toggle onclick sets habit target => one modal enough?! 
     } else {
       <div class="grid place-items-center h-48">
         <p>"No habits yet, create one first"</p>
       </div>
+    }
+    modal("a~id", "Create new Habit"){
+      placeholder addPh {
+        addHabitModal("a~id", addPh, self)
+      }
     }
   }
 }
@@ -204,6 +349,7 @@ template habitsoverview(u: User){
 }
 
 access control rules
-  rule ajaxtemplate editModal(mId: String, self: Placeholder, update: Placeholder, h: Habit){ loggedIn() && (h.user == principal) }
-  rule ajaxtemplate ajaxSingleHabitOverview(parent: Placeholder, h: Habit, mId: String, mph: Placeholder){ loggedIn() && (h.user == principal || principal.isAdmin()) }
+  rule ajaxtemplate addHabitModal(mId: String, self: Placeholder, parent: Placeholder){ loggedIn() }
+  rule ajaxtemplate editHabitModal(mId: String, self: Placeholder, update: Placeholder, overview: Placeholder, h: Habit){ loggedIn() && (h.user == principal) }
+  rule ajaxtemplate ajaxSingleHabitOverview(parent: Placeholder, self: Placeholder, h: Habit, mId: String, editPh: Placeholder){ loggedIn() && (h.user == principal || principal.isAdmin()) }
   rule ajaxtemplate ajaxhabitsoverview(parent: Placeholder, u: User){ loggedIn() && (u == principal || principal.isAdmin()) }

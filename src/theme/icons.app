@@ -8,6 +8,12 @@ template iRefresh(size: Int){
 	</svg>
 }
 
+template iEdit(size: Int){
+	<svg xmlns="http://www.w3.org/2000/svg" width="~size" height="~size" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" all attributes>
+		<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+	</svg>
+}
+
 template iSuccess(size: Int){
   <svg xmlns="http://www.w3.org/2000/svg" width="~size" height="~size" stroke="currentColor" fill="none" viewBox="0 0 24 24" all attributes>
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

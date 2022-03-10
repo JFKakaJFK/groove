@@ -138,7 +138,25 @@ page admin(){
   <script>console.warn('admin')</script>
 }
 
+page search(query : String) {
+  var newQuery : String := query;
+  action doSearch() {
+    return search(newQuery);
+  }
+
+  title { "Search" }
+  form {
+    input(newQuery)
+    submit("Search", doSearch())
+  }
+  for(m : Habit in searchHabit(query, 50)) {
+    output(m)
+    output(m.name)
+  }
+}
+
 access control rules
+  rule page search(q: String){ true }
   rule ajaxtemplate logo(){ true }
   rule page root(){ true }
   rule page login(){ true }
