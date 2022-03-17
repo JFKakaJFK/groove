@@ -8,17 +8,9 @@ ajax template adminView(){
   setTitle("Manage | Groove")
   setNavbarTitle("Manage")
 
-  <div>
-    placeholder search {
-      searchUsers(search, "\"*\"", 0)
-    }
-  </div>
-
-  <div>
-    for(u: User){
-      userFragment(u)
-    }
-  </div>
+  placeholder ph {
+    searchUsers(ph, "", 0)
+  }
 }
 
 access control rules

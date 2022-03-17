@@ -2,9 +2,19 @@
 
 A simple Habit Tracker.
 
-## Features
+## Feature Overview
 
-Users can track their habits.
+- General
+  - New users can sign up and verify their email.
+  - Users can request a password reset token per email.
+  - Users can change their name, email, password and notification preferences.
+- Habits
+  - Users can create new habits and complete their own habits.
+  - Users see a few statistics about their streaks and completion rates.
+  - Users can delete and modify their own habits.
+- Management
+  - Administrators have an overview of all users and can delete and upgrade users.
+  - Administrators can send newsletter emails.
 
 ## Development
 

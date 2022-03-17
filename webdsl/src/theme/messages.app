@@ -23,52 +23,83 @@ override template errorTemplateAction( messages: [String] ){
 	}
 }
 
-override template templateSuccess( messages: [String] ){
-  <div id="~id" data-theme="dracula" class="z-[9999] fixed right-4 bottom-4 grid gap-4 mx-auto w-full max-w-sm">
-    <script type="text/javascript">
-			setTimeout(() => {
-				const e = document.getElementById('~id');
-				e.animate([{opacity: 1},{opacity: 0}], 500).onfinish = () => e.remove();
-			}, 4000)
-		</script>
-		for( msg in messages ){
-    	<div class="flex flex-row justify-between items-center alert shadow-lg alert-success">
-	  		<div>
-	    		iSuccess(24)[class="flex-shrink-0"]
-	    		<span>output(msg)</span>
-	  		</div>
-	  		<button class="m-0" onclick="hideAlert(this)">
-		  		iX(24)
-        </button>
-		</div>
-    }
-  </div>
-}
-
 // didn't work that well w/ ajax
 override template messages(){ }
 
-
-// <!-- TODO if time -->
-// have another global div, use mutationobserver to see if there are new notifications
-// then copy them over in the other div to show, thus avoiding deleting messages early by template replacement
-ajax template notifications(){
-  request var list: [String] := List<String>()
-  render{
-    list.addAll( getDispatchServlet().getIncomingSuccessMessages() );
-    list.addAll( getDispatchServlet().getOutgoingSuccessMessages() ); //in case there are new messages created within this request
-    if(!getPage().isRedirected()){ getDispatchServlet().clearSuccessMessages(); }    
-  }
+template notifications(){
+	request var list: [String] := List<String>()
+	init {
+		list.addAll( getDispatchServlet().getIncomingSuccessMessages() );
+		list.addAll( getDispatchServlet().getOutgoingSuccessMessages() ); //in case there are new messages created within this request
+		if(!getPage().isRedirected()){ getDispatchServlet().clearSuccessMessages(); }    
+	}
+	// make sure the hide function is in scope for the alerts
 	<script type="text/javascript">
 		function hideAlert(e){
 			const a = e.closest('.alert');
 			a.animate([{opacity: 1},{opacity: 0}], 500).onfinish = () => a.remove();
 		}
 	</script>
-  if( list.length > 0 ){
-    templateSuccess( list )
-  }
+	<div id=G.notificationsId class="z-[9999] fixed right-4 bottom-4 grid gap-4 mx-auto w-full max-w-sm subpixel-antialiased" data-theme="dracula">
+		for( msg in list){
+			notificationSuccess(msg)
+		}
+	</div>
+	<script type="text/javascript">
+		(function(){
+			// no need to wait for DOMContentLoaded as the div is already present
+			// have an mutationobserver listening to changes on the wrapper div
+			// annoying way of finding the div as interpolation is ambiguous per definition...
+			const scripts = document.getElementsByTagName("script");
+			const target = scripts[scripts.length - 1].previousElementSibling;
+			//console.log(target)
+			const config = { childList: true, attributes: false, subtree: false };
+			function listener(mutations, observer){
+				for(const mutation of mutations){
+					//if (mutation.type === 'childList'){ console.log(mutation, 'child list mut'); }
+					// remove newly added nodes after some time
+					mutation.addedNodes.forEach(e => {
+						setTimeout(() => {
+							e.animate([{opacity: 1},{opacity: 0}], 500).onfinish = () => e.remove();
+						}, 4000)
+					});
+				}
+			}
+			const observer = new MutationObserver(listener);
+			observer.observe(target, config);
+		})();
+	</script>
 }
 
-access control rules
-	rule ajaxtemplate notifications(){ true }
+// if only called in the function, this leads to java.lang.RuntimeException: template lookup failed for name: notificationSuccessString
+template notificationSuccess(msg: String){
+	<div class="flex flex-row justify-between items-center alert shadow-lg alert-success">
+		<div>
+			iSuccess(24)[class="flex-shrink-0"]
+			<span>output(msg)</span>
+		</div>
+		<button class="m-0" onclick="hideAlert(this)">
+			iX(24)
+		</button>
+	</div>
+}
+
+// allows at least some backwards compatibility with the built-in notifications
+function showNotifications(){
+	// get messages
+	var list: [String] := List<String>();
+	list.addAll( getDispatchServlet().getIncomingSuccessMessages() );
+	list.addAll( getDispatchServlet().getOutgoingSuccessMessages() ); //in case there are new messages created within this request
+	getDispatchServlet().clearSuccessMessages();
+	// prerender
+	var prerendered : String := "";
+	for( msg in list){
+		prerendered := prerendered + rendertemplate(notificationSuccess(msg));
+	}
+	// attach and show
+	runscript("document.getElementById('~G.notificationsId').innerHTML += '~prerendered';");
+}
+function notify(msg: String){
+	message(msg);
+	showNotifications();
+}

@@ -2,6 +2,7 @@ module login
 
 imports src/theme
 imports src/views
+imports src/email
 
 ajax template signin(){
 	var email : Email := ""
@@ -23,8 +24,8 @@ ajax template signin(){
           </label>
           input(password)[class="input input-bordered"]
           <div class="flex justify-between">
-            <label class="label">// TODO forgot password
-              // TODO navigate requestPasswordReset()[class="label-text-alt link link-secondary link-hover"]{ "Forgot password?" }
+            <label class="label">
+              navigate requestPasswordReset()[class="label-text-alt link link-secondary link-hover"]{ "Forgot password?" }
             </label>
             <label class="label">
               <span class="label-text-alt">"Remember me"</span>
@@ -50,9 +51,7 @@ ajax template signin(){
   action login(){
     getSessionManager().stayLoggedIn := rememberMe;
     validate(authenticate(email, password), "The login credentials are not valid.");
-    // message("You are now logged in.");
     notify("Login successful");
-    // refresh();
     updatePage();
     replace( G.rootId, rootView() ); 
   }

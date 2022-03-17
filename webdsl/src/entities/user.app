@@ -3,8 +3,8 @@ module user
 imports src/entities
 
 entity User {
-	name: String (searchable)
-	email: Email (id, not null, searchable, iderror = "email address not available", idemptyerror = "email required", validate(isUniqueUser(this), "email address not available"))
+	name: String (not null, validate(!name.isNullOrEmpty(), "Required"))
+	email: Email (id, not null, iderror = "Address not available", idemptyerror = "Required")
 	password: Secret (not null)
 	passwordResetToken: Token
 	
@@ -18,12 +18,10 @@ entity User {
 	isPremium : Bool := PREMIUM in roles
 	isAdmin : Bool := ADMIN in roles
 	
-	//cached function isPremium() : Bool {
-	//	return PREMIUM in roles;
-	//}
-	//cached function isAdmin() : Bool {
-	//	return ADMIN in roles;
-	//}
+	search mapping {
+		name;
+		email;
+	}
 
 	cached function habitInfo() : HabitInfo {
 		var longestStreak : Int := 0;

@@ -10,6 +10,7 @@ imports src/views/login
 imports src/views/signup
 imports src/views/settings
 imports src/views/admin
+imports src/views/newsletter
 
 // First I had used WebDSL in the way it feels intended w/ multiple pages
 // and navigates etc.
@@ -142,25 +143,21 @@ page admin(){
   <script>console.warn('admin')</script>
 }
 
-page search(query : String) {
-  var newQuery : String := query;
-  action doSearch() {
-    return search(newQuery);
+template toNewsletter(){
+  action a(){
+    replace(G.rootId, newsletterView());
+    pushRoute("/newsletter");
   }
 
-  title { "Search" }
-  form {
-    input(newQuery)
-    submit("Search", doSearch())
-  }
-  for(m : Habit in searchHabit(query, 50)) {
-    output(m)
-    output(m.name)
-  }
+  button[onclick := a(), all attributes]{ elements }
+}
+
+page newsletter(){
+  layout(){ newsletterView() }
+  <script>console.warn('news')</script>
 }
 
 access control rules
-  rule page search(q: String){ true }
   rule ajaxtemplate logo(){ true }
   rule page root(){ true }
   rule page login(){ true }
@@ -168,3 +165,4 @@ access control rules
   rule page habits(){ loggedIn() }
   rule page settings(){ loggedIn() }
   rule page admin(){ loggedIn() && principal.isAdmin }
+  rule page newsletter(){ loggedIn() && principal.isAdmin }

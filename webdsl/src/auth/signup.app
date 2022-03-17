@@ -2,6 +2,7 @@ module signup
 
 imports src/theme
 imports src/views
+imports src/email
 
 ajax template signupA(){
 	var name := ""
@@ -57,6 +58,7 @@ ajax template signupA(){
 			</div>
 			
 			//captcha() TODO
+			
 			<div class="form-control">
 				submit signup()[class="btn btn-primary", ajax] { "Sign up" }
 			</div>
@@ -81,9 +83,9 @@ ajax template signupA(){
 		};
 		u.save();
 		securityContext.principal := u;
-		// TODO sendVerificationEmail(u);
+		sendVerificationEmail(u);
 		// TODO welcome email
-		message("Welcome! You signed up successfully.");
+		notify("Welcome! You signed up successfully.");
 	  updatePage();
     replace( G.rootId, rootView() ); 
 	}
