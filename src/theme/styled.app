@@ -7,6 +7,11 @@ function notify(msg: String){
 	replace(G.notificationsId, notifications());
 }
 
+function notify_old(msg: String){
+	message(msg);
+	replace(G.notificationsId, notifications());
+}
+
 template styled(){
   includeCSS("./theme.css")
 

@@ -30,8 +30,18 @@ entity Day {
 	}
 }
 
+function isValidHabitName(h: Habit): Bool {
+	var sameName : [Habit] := from Habit as h where h.name = ~h.name and h.user = ~h.user limit 1;
+	return sameName.length == 0 || (sameName.length == 1 && sameName[0] == h);
+}
+
 entity Habit {
-	name: String (searchable)
+	// Here the validation is a bit tricky: I want users not to be able to have two habits of the same name,
+	// but two different users can have a habit with the same name, so I can not use id.
+	// Adding a validation here would be the clean solution, but that did not work as expected.
+	// So I left the comment in there but instead validate separately at every point where the name can be changed which is
+	// a bit cumbersome.
+	name: String (searchable, not null)//, validate(!name.isNullOrEmpty(), "Required"), validate(isValidHabitName(this), "You already have a habit with this name"))
 	// this would make sense in a production setting, but for testing it is more convenient to take
 	// the first completion as start (no completionrates > 100%)
 	//start: Date (searchable, default = today(), not null)
