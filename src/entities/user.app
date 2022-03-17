@@ -4,7 +4,7 @@ imports src/entities
 
 entity User {
 	name: String (searchable)
-	email: Email (id, not null, searchable, validate(isUniqueUser(this), "email address not available"))
+	email: Email (id, not null, searchable, iderror = "email address not available", idemptyerror = "email required", validate(isUniqueUser(this), "email address not available"))
 	password: Secret (not null)
 	passwordResetToken: Token
 	

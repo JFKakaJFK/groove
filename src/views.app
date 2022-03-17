@@ -53,7 +53,11 @@ template toIndex(){
     pushRoute("/");
   }
 
-  button[onclick := a(), all attributes]{ elements }
+  if( loggedIn() ){
+    toHabits()[all attributes]{ elements }
+  } else {
+    button[onclick := a(), all attributes]{ elements }
+  }
 }
 
 // sometimes, e.g. when going from logged in to logged out, the url needs to be refreshed
