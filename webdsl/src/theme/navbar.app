@@ -32,7 +32,7 @@ ajax template nav(){
             <li>
               toSettings{ "Settings" }
             </li>
-            if(!principal.isPremium()){
+            if(!principal.isPremium){
               <div class="my-1 py-0 px-3 gap-0 h-min divider"></div>
               <li> // <!-- TODO -->
                 <span class="bg-gradient-to-r from-secondary to-primary hover:bg-clip-text hover:text-transparent">
@@ -42,7 +42,7 @@ ajax template nav(){
             } else {
               // TODO potential premium features
             }
-            if(principal.isAdmin()){
+            if(principal.isAdmin){
               <div class="my-1 py-0 px-3 gap-0 h-min divider"></div>
               <li>
                 toAdmin{ "Manage" }

@@ -54,7 +54,7 @@ template input( c: ref Color ){
       log(req); log(picked);
       if( picked == null ) {
         errors := [ "Not a valid color." ];
-      } else if ( picked.premium && (!loggedIn() || !principal.isPremium()) ){
+      } else if ( picked.premium && (!loggedIn() || !principal.isPremium) ){
         errors := [ "This color is not allowed" ];
       }
     }
@@ -80,7 +80,7 @@ template inputColorInternal( c: ref Color, rname: String){
 	      <h3 class="card-title">"Pick a color"</h3>
 	      <div class="grid gap-4 grid-cols-[repeat(auto-fill,_minmax(1.5rem,_1fr))]">
 	      	for(col: Color){
-	      		if(!col.premium || principal.isPremium()){
+	      		if(!col.premium || principal.isPremium){
               <button
                 type="button" 
                 class="w-6 h-6 !rounded grid place-items-center"

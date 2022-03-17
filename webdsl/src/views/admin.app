@@ -22,4 +22,4 @@ ajax template adminView(){
 }
 
 access control rules
-  rule ajaxtemplate adminView(){ loggedIn() && principal.isAdmin() }
+  rule ajaxtemplate adminView(){ loggedIn() && principal.isAdmin }

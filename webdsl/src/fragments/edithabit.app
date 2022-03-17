@@ -15,7 +15,7 @@ ajax template ajaxInputColor(self: Placeholder, color: ref Color){
 	      <h3 class="card-title">"Pick a color"</h3>
 	      <div class="grid gap-4 grid-cols-[repeat(auto-fill,_minmax(1.5rem,_1fr))]">
 	      	for(c: Color){
-	      		if(!c.premium || principal.isPremium()){
+	      		if(!c.premium || principal.isPremium){
 	      			btn[type="button", class="w-6 h-6 !rounded", style="background:~c.value;", onclick := setColor(c)]{}
 	      		} else {
 	      			<div class="w-6 h-6 !rounded grid place-items-center" style="background:~c.value;">

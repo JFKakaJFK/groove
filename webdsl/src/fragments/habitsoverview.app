@@ -271,5 +271,5 @@ template habitsoverview(u: User){
 access control rules
   rule ajaxtemplate addHabitModal(mId: String, self: Placeholder, parent: Placeholder){ loggedIn() }
   rule ajaxtemplate editHabitModal(mId: String, self: Placeholder, update: Placeholder, overview: Placeholder, h: Habit){ loggedIn() && (h.user == principal) }
-  rule ajaxtemplate ajaxSingleHabitOverview(parent: Placeholder, self: Placeholder, h: Habit, mId: String, editPh: Placeholder){ loggedIn() && (h.user == principal || principal.isAdmin()) }
-  rule ajaxtemplate ajaxhabitsoverview(parent: Placeholder, u: User){ loggedIn() && (u == principal || principal.isAdmin()) }
+  rule ajaxtemplate ajaxSingleHabitOverview(parent: Placeholder, self: Placeholder, h: Habit, mId: String, editPh: Placeholder){ loggedIn() && (h.user == principal || principal.isAdmin) }
+  rule ajaxtemplate ajaxhabitsoverview(parent: Placeholder, u: User){ loggedIn() && (u == principal || principal.isAdmin) }

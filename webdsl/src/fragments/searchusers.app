@@ -64,4 +64,4 @@ ajax template searchUsers(target: Placeholder, prevQuery: String, prevPage: Int)
 }
 
 access control rules
-  rule ajaxtemplate searchUsers(target: Placeholder, prevQuery: String, prevPage: Int){ loggedIn() && principal.isAdmin() }
+  rule ajaxtemplate searchUsers(target: Placeholder, prevQuery: String, prevPage: Int){ loggedIn() && principal.isAdmin }

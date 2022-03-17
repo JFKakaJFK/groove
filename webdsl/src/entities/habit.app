@@ -46,7 +46,7 @@ entity Habit {
 	// the first completion as start (no completionrates > 100%)
 	//start: Date (searchable, default = today(), not null)
 	description: Text (searchable, default = "")
-	color: Color (not null, default = randomColor(), allowed = from Color as c where c.premium = false or ~principal.isPremium() = true)
+	color: Color (not null, default = randomColor(), allowed = from Color as c where c.premium = false or ~principal.isPremium = true)
 	user: User (not null) // default = principal, // crashes if i want to init some habits as there is no principal...
 	// maybe having ranges instead of single days is more performant, but I don't want to redo it...
 	completions <> {Completion} (inverse = habit, default = Set<Completion>())

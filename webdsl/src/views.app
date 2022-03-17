@@ -167,4 +167,4 @@ access control rules
   rule page signup(){ true }
   rule page habits(){ loggedIn() }
   rule page settings(){ loggedIn() }
-  rule page admin(){ loggedIn() && principal.isAdmin() }
+  rule page admin(){ loggedIn() && principal.isAdmin }

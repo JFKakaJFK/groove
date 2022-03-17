@@ -9,10 +9,10 @@ template userFragment(u: User){
     <div class="stat">
       <div class="stat-title">output(u.name)</div>
       <div class="stat-desc"> // badges
-        if(u.isAdmin()){
+        if(u.isAdmin){
           <span class="badge badge-primary uppercase">"admin"</span>
         }
-        if(u.isPremium()){
+        if(u.isPremium){
           <span class="badge uppercase">"premium"</span>
         }
       </div>

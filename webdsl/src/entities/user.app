@@ -14,13 +14,16 @@ entity User {
 	
 	roles: {Role} (default = Set<Role>())
 	habits: {Habit} (inverse = user, default = Set<Habit>())
+
+	isPremium : Bool := PREMIUM in roles
+	isAdmin : Bool := ADMIN in roles
 	
-	cached function isPremium() : Bool {
-		return PREMIUM in roles;
-	}
-	cached function isAdmin() : Bool {
-		return ADMIN in roles;
-	}
+	//cached function isPremium() : Bool {
+	//	return PREMIUM in roles;
+	//}
+	//cached function isAdmin() : Bool {
+	//	return ADMIN in roles;
+	//}
 
 	cached function habitInfo() : HabitInfo {
 		var longestStreak : Int := 0;
