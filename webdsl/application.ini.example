@@ -1,5 +1,5 @@
 //usecompileserver=true
-appname=habit-tracker
+appname=mainappfile
 backend=servlet
 sessiontimeout=120
 smtphost=smtp.mailtrap.io
