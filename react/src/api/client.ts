@@ -18,7 +18,7 @@ export const queryClient = new QueryClient({
 })
 export const api = ky.create({
   // not really needed in our case thanks to the proxy...
-  prefixUrl: 'https://localhost:8080'
+  //prefixUrl: 'api' //https://localhost:8080/mainappfile
 })
 
 // TODO define useQueryName for all queries to get the best out of react query

@@ -1,10 +1,8 @@
 application groove
 
-imports src/auth
 imports src/entities
-imports src/theme
-imports src/utils
 imports src/views
+imports src/services
 
 init {
   var adminUser := User{ 
