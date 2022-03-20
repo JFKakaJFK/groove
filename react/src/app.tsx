@@ -1,17 +1,15 @@
-import { Route, Routes } from "react-router-dom";
+import { lazy } from "react";
+import { useAuth } from "./api/auth";
 
-import { Layout } from "./components/layout";
-import { Root, A } from "./routes";
+// So this time I tried doing something along the lines of this article
+// https://kentcdodds.com/blog/authentication-in-react-applications
+const AuthenticatedApp = lazy(() => import("./authenticated"));
+const UnauthenticatedApp = lazy(() => import("./unauthenticated"));
 
 function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route path="/" element={<Root />} />
-        <Route path="/a" element={<A />} />
-      </Route>
-    </Routes>
-  );
+  const { isAuthenticated } = useAuth();
+
+  return isAuthenticated ? <AuthenticatedApp /> : <UnauthenticatedApp />;
 }
 
 export default App;

@@ -132,5 +132,16 @@ entity Habit {
 		}
 		return days;
 	}
+
+	cached function json(): JSONObject{
+		var o := JSONObject();
+		o.put("id", id);
+		o.put("user", user.email);
+		o.put("name", name);
+		o.put("description", description);
+		o.put("color", color.value);
+		o.put("info", this.streakInfo().json());
+		return o;
+	}
 }
 

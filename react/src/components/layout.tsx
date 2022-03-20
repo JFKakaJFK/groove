@@ -8,12 +8,15 @@ import {
   Menu,
   Space,
   Container,
+  Button,
 } from "@mantine/core";
 import { useOs } from "@mantine/hooks";
 import { useSpotlight } from "@mantine/spotlight";
 import { FiSearch, FiSun, FiMoon } from "react-icons/fi";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { GhostButton } from "./ghost-btn";
+import { DotsVertical } from "tabler-icons-react";
+import { useAuth, useLogout } from "../api/auth";
 
 function SpotlightInput() {
   const spotlight = useSpotlight();
@@ -47,12 +50,26 @@ function ThemeToggle() {
 }
 
 function Navigation() {
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
+  const { mutate: logout } = useLogout();
+
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Button component={Link} to="/login">
+          Login
+        </Button>
+      </>
+    );
+  }
+
   return (
     <Menu
       control={
         <GhostButton>
           <Center p={3}>
-            <FiSearch size={16} />
+            <DotsVertical size={16} />
           </Center>
         </GhostButton>
       }
@@ -60,8 +77,17 @@ function Navigation() {
       <Menu.Item component={Link} to="/">
         Home
       </Menu.Item>
-      <Menu.Item component={Link} to="/a">
-        Aaaa
+
+      <Menu.Item
+        onClick={() =>
+          logout(undefined, {
+            onSuccess() {
+              navigate("/");
+            },
+          })
+        }
+      >
+        Logout
       </Menu.Item>
     </Menu>
   );

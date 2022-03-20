@@ -35,3 +35,37 @@ Learning WebDSL
   ~ from including installation on Windows to getting the first hang of it took around 20 hrs, but then I effectively had the authentication flow (login, signup, access control, password forgot link, password reset) already implemented
   - understanding the more nuanced stuff took a loot longer, as WebDSL sometimes behaved differently than I expected.
   - overall the time surely could be cut in half/even less if restarting would not take as long...
+
+General wishlist - something along the lines of making the developer experience feeling like it is 2015+
+- hot reloading for templates/ajax templates/services (I have no Idea how this could work, but it was the main roadblock in my experience and for the non DB migrating stuff it should be possible)
+- more flexibility for templates and functions, higher order stuff and something like react context would be nice (this would do a lot for the development experience of nested ajax templates)
+  - non-ajax use case example: 
+- good syntax highlighting (currently only WebDSL stuff is highlighted, HTML/CSS/JS are not)
+- built in way of documenting code that shows up in editor hints (Typescript spoiled me a bit I guess)
+- convenience features for services (basically everything that https://fastapi.tiangolo.com/ offers would be nice ;) )
+  - nicer JSON handling for request body parsing and response building (doesn't WebDSL intend to remove boilerplate code?)
+  - dynamic API documentation (something like https://github.com/swagger-api/swagger-ui or https://github.com/Redocly/redoc)
+  - a way to change the HTTP status code of responses (to avoid reinventing the wheel)
+
+Would I use WebDSL in the future? I like the core idea, it makes some aspects of web development a lot faster/more convenient. If I don't want to use ajax or REST, then I doubt I can be faster using some other framework.
+However, the tooling is slow and lacking. While the code is more efficient, using a traditional approach I would not have to wait for `webdsl start`. Sometimes that is not too bad, other times I feel like this holds me back too much. Debugging with `log` is very tedious. The documentation is incomplete, out of date and sometimes omits key details. 
+
+API Development
+- works. Thats about it.
+- JSON handling is awkward, error handling is somewhat nonexistent.
+
+
+```
+service currentUserService(){
+  var res := Response();
+  if( isPOST() ){
+    if ( loggedIn() ){
+      return Ok(res, principal.json());
+    } else { // BOILERPLATE
+      return Err(res, 401, "Not authenticated");
+    }
+  } else { // BOILERPLATE
+    return Err(res, "Invalid request");
+  }
+}
+```

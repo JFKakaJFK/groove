@@ -1,24 +1,48 @@
 import {
-  useQuery,
-  useMutation,
-  useQueryClient,
   QueryClient,
-  QueryClientProvider,
 } from 'react-query'
-import ky from 'ky'
+import ky, { ResponsePromise } from 'ky'
 
-// Create a client
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       // 10sec in cache before we try to get new data unless invalidated
-      staleTime: 1000 * 10,
+      staleTime: 10 * 1000, // 10s
+      cacheTime: 24 * 60 * 60 * 1000 // 24h
     }
   }
 })
+
+// TODO persist cache https://react-query.tanstack.com/plugins/persistQueryClient
+
 export const api = ky.create({
-  // not really needed in our case thanks to the proxy...
-  //prefixUrl: 'api' //https://localhost:8080/mainappfile
+  // Without proxy this would be something like
+  // https://localhost:8080/mainappfile/api
+  prefixUrl: '/api'
 })
 
-// TODO define useQueryName for all queries to get the best out of react query
+export interface APIError {
+  status: number;
+  message: string;
+}
+
+export interface APIResponse<T> {
+  error: APIError[]
+  data: T
+}
+
+/**
+ * Wraps API requests with custom error handling since WebDSL does not support
+ * returning the corresponding HTTP status code...
+ * 
+ * @param req the API request
+ * @returns 
+ */
+export async function wrapRequest<T>(req: ResponsePromise): Promise<T> {
+  const res = await req.json() as APIResponse<T>
+  if (res.error?.length > 0) {
+    throw new Error(res.error[0]?.message);
+  }
+  console.log(res) // TODO remove
+  return res.data
+}

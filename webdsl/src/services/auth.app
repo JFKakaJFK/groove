@@ -1,100 +1,111 @@
 module auth
 
-// Supported HTTP methods are GET, HEAD, POST, PUT, TRACE, OPTIONS
-// so no DELETE or PATCH.
-// Hence the pathname must be enough -> no POST/GET/PUT/DELETE for CRUD
+imports src/services/utils
+imports src/email
 
-// hacky response building
-function Response(): JSONObject {
-  var res := JSONObject();
-  res.put("error", JSONArray());
-  res.put("data", JSONObject());
-  return res;
-}
-
-function ErrorResponse(res: JSONObject, err: Int, msg: String): JSONObject {
-  var e := JSONObject();
-  e.put("message", msg);
-  e.put("status", err);
-  res.getJSONArray("error").put(e);
-  return res;
-}
-
-function ErrorResponse(res: JSONObject, msg: String): JSONObject {
-  // per default answer w/ 400
-  return ErrorResponse(res, 400, msg);
-}
-
-// TODO
-function OKResponse(res: JSONObject, key: String, value: Object): JSONObject {
-  var d : JSONObject := res.getJSONObject("data");
-  d.put(key, value);
-  res.put("data", d);
-  return res;
-}
-
-// TODO
-//function ErrorResponse(res: JSONObject, validationResults: CheckResults){
-//  for( ex in validationResults.exeptions ){
-//    rollback();
-//    ErrorResponse(res, ex.message);
-//  }
-//  return res;
-//}
-
-// Logs a user in or returns an error message
-// 
-// Payload - POST
+// req body
 // {
 //  "email": String,
 //  "password": String,
 //  "stayLoggedIn": Boolean, (optional)
 // }
-//
-// Response - Success
-// {
-//  "id": String
-// }
-//
 service loginService(){
-  if( getHttpMethod() == "POST" ){
+  var res := Response();
+  if( isPOST() ){
     var req := JSONObject(readRequestBody());
-    var res := Response();
 
-    if(!req.has("email")){
-      ErrorResponse(res, "Field \"email\" is missing");
-    } else if(!req.has("password")){
-      ErrorResponse(res, "Field \"password\" is missing");
-    } else {
-      if(authenticate(req.getString("email"), req.getString("password"))){
-        getSessionManager().stayLoggedIn := req.has("stayLoggedIn") && req.getBoolean("stayLoggedIn");
-        
-        log(0);
-        //var s := res.getString("data");
-        log(1);
-        var d : JSONObject := res.getJSONObject("data");//JSONObject(s);
-        log(2);
-        d.put("id", principal.email);
-        log(3);
-        res.put("data", d);
-        log(4);
-        //OKResponse(res, "id", principal.email);
+    var email := expectString(req, res, "email");
+    var password := expectString(req, res, "password");
+    var stayLoggedIn := optionalBool(req, res, "stayLoggedIn", false);
+
+    if ( isOk(res) ){
+      if( authenticate(email, password) ){
+        getSessionManager().stayLoggedIn := stayLoggedIn;
+
+        return Ok(res, principal.json());
       } else {
-        ErrorResponse(res, 401, "Invalid credentials");
+        return Err(res, 401, "Invalid credentials");
       }
+    } else {
+      return res;
     }
-
-    return res;
+  } else {
+    return Err(res, "Invalid request");
   }
 }
 
-service testService(){
-  var json := JSONObject(readRequestBody());
-  log(json);
-  json.put("_method", getHttpMethod());
-  return json;
+service logoutService(){
+  var res := Response();
+  if( isPOST() ){
+    if( loggedIn() ){
+      securityContext.principal := null;
+      
+      return Ok(res, null as JSONObject);
+    } else {
+      return Err(res, 401, "Not authenticated");
+    }
+  } else {
+    return Err(res, "Invalid request");
+  }
+}
+
+// req body
+// {
+//  "name": String
+//  "email": String,
+//  "password": String,
+//  "newsletter": Boolean, (optional)
+// }
+service registerService(){
+  var res := Response();
+  if( isPOST() ){
+    var req := JSONObject(readRequestBody());
+
+    var name := expectString(req, res, "name");
+    var email := expectString(req, res, "email");
+    var password := expectString(req, res, "password");
+    var newsletter := optionalBool(req, res, "newsletter", false);
+
+    if ( isOk(res) ){
+      var u := User {
+        name := name
+        email := email
+        password := (password as Secret).digest()
+        verified := false
+        newsletter := newsletter
+      };
+      u.save();
+
+      if( isOk(res, u.validateSave()) ){
+        securityContext.principal := u;
+        sendVerificationEmail(u);
+        return Ok(res, u.json());
+      } else {
+        return res;
+      }
+    } else {
+      return res;
+    }
+  } else {
+    return Err(res, "Invalid request");
+  }
+}
+
+service currentUserService(){
+  var res := Response();
+  if( isPOST() ){
+    if ( loggedIn() ){
+      return Ok(res, principal.json());
+    } else {
+      return Err(res, 401, "Not authenticated");
+    }
+  } else {
+    return Err(res, "Invalid request");
+  }
 }
 
 access control rules
-  rule page testService(){ true }
   rule page loginService(){ true }
+  rule page logoutService(){ true }
+  rule page registerService(){ true }
+  rule page currentUserService(){ true }

@@ -61,7 +61,7 @@ ajax template searchUsers(target: Placeholder, prevQuery: String, prevPage: Int)
   var results : [User] := List<User>()
   
   init{
-    if (prevQuery.isNullOrEmpty()){
+    if (prevQuery.isNullOrEmpty()){ // if there is no query show all users
       results := from User order by name asc;
     } else {
       // do search
@@ -72,12 +72,10 @@ ajax template searchUsers(target: Placeholder, prevQuery: String, prevPage: Int)
         .setOffset(25*page)
         .setLimit(26)
         .sortAsc("name");
-      
-      searcher := search User matching name: "~prevQuery";
-      log(">>>>"); log(searcher.getQuery()); log(","); log(searcher.count());
-      //searcher := searcher.setOffset(25*page).setLimit(26).sortAsc("name");
 
-      //hasNext := searcher.count() > 25;
+      log(">>>>"); log(searcher.getQuery()); log(","); log(searcher.count());
+
+      hasNext := searcher.count() > 25;
       results := searcher.setLimit(25).results();
     }
   }

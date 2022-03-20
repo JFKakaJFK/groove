@@ -4,20 +4,15 @@ import {
   ColorScheme,
 } from "@mantine/core";
 import { useHotkeys, useLocalStorageValue } from "@mantine/hooks";
-import { ReactNode } from "react";
 import { useColorScheme } from "@mantine/hooks";
 
 import { Spotlight } from "./spotlight";
-
-export interface ThemeProviderProps {
-  children: ReactNode;
-}
 
 /**
  * Provides color theme, persistent wrapper around mantine provider
  * @returns
  */
-export function ThemeProvider({ children }: ThemeProviderProps) {
+export function ThemeProvider({ children }: { children: JSX.Element }) {
   const preferredColorScheme = useColorScheme();
   const [colorScheme, setColorScheme] = useLocalStorageValue<ColorScheme>({
     key: "mantine-color-scheme",

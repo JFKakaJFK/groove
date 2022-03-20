@@ -6,7 +6,6 @@ imports src/services/auth // loginService, logoutService, signupService
 // each service has the name <path>Service, so /api/<path>/...args becomes <path>Service/...args
 routing {
   receive(urlargs:[String]) {
-    log(baseUrl());
     if(urlargs[0] == "api" && urlargs.length > 1){
       var url := [urlargs[1] + "Service"].addAll(urlargs.subList(2, urlargs.length));
       log("[routing]: ~urlargs -> ~url");
