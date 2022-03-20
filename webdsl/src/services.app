@@ -1,6 +1,7 @@
 module services
 
-imports src/services/auth // loginService, logoutService, signupService
+imports src/services/auth  // login, logout, register
+imports src/services/habit // habits, habit
 
 // reroute api requests to the right service
 // each service has the name <path>Service, so /api/<path>/...args becomes <path>Service/...args

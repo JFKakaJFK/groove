@@ -16,7 +16,7 @@ service loginService(){
 
     var email := expectString(req, res, "email");
     var password := expectString(req, res, "password");
-    var stayLoggedIn := optionalBool(req, res, "stayLoggedIn", false);
+    var stayLoggedIn := optionalBool(req, "stayLoggedIn", false);
 
     if ( isOk(res) ){
       if( authenticate(email, password) ){
@@ -39,7 +39,7 @@ service logoutService(){
   if( isPOST() ){
     if( loggedIn() ){
       securityContext.principal := null;
-      
+
       return Ok(res, null as JSONObject);
     } else {
       return Err(res, 401, "Not authenticated");
@@ -64,7 +64,7 @@ service registerService(){
     var name := expectString(req, res, "name");
     var email := expectString(req, res, "email");
     var password := expectString(req, res, "password");
-    var newsletter := optionalBool(req, res, "newsletter", false);
+    var newsletter := optionalBool(req, "newsletter", false);
 
     if ( isOk(res) ){
       var u := User {

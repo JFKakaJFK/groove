@@ -28,9 +28,16 @@ function requestMethod(req: JSONObject): String {
   }
 }
 
-function optionalBool(req: JSONObject, res: JSONObject, key: String, default: Bool): Bool {
+function optionalBool(req: JSONObject, key: String, default: Bool): Bool {
   if(req.has(key)){
     return req.getBoolean(key);
+  } else {
+    return default;
+  }
+}
+function optionalString(req: JSONObject, key: String, default: String): String {
+  if(req.has(key)){
+    return req.getString(key);
   } else {
     return default;
   }

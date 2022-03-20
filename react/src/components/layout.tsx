@@ -6,10 +6,8 @@ import {
   useMantineColorScheme,
   Center,
   Menu,
-  Space,
   Container,
   Button,
-  UnstyledButton,
   Image,
 } from "@mantine/core";
 import { useOs } from "@mantine/hooks";
@@ -56,7 +54,7 @@ function ThemeToggle() {
 
 function Navigation() {
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { mutate: logout } = useLogout();
 
   if (!isAuthenticated) {

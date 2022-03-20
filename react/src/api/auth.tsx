@@ -99,7 +99,7 @@ export interface AuthContext {
   //register(data: RegistrationData): Promise<void>;
 }
 
-const AuthContext = createContext({} as unknown as AuthContext);
+const authContext = createContext({} as unknown as AuthContext);
 
 // queryClient.prefetchQuery("currentUser", currentUser);
 
@@ -122,18 +122,18 @@ export function AuthProvider({ children }: { children: JSX.Element }) {
   }
 
   return (
-    <AuthContext.Provider
+    <authContext.Provider
       value={{
         isAuthenticated: !!user,
         user,
       }}
     >
       {children}
-    </AuthContext.Provider>
+    </authContext.Provider>
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(authContext);
 
 export interface Credentials {
   email: string;
