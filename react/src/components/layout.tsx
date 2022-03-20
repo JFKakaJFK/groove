@@ -9,6 +9,8 @@ import {
   Space,
   Container,
   Button,
+  UnstyledButton,
+  Image,
 } from "@mantine/core";
 import { useOs } from "@mantine/hooks";
 import { useSpotlight } from "@mantine/spotlight";
@@ -17,6 +19,9 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import { GhostButton } from "./ghost-btn";
 import { DotsVertical } from "tabler-icons-react";
 import { useAuth, useLogout } from "../api/auth";
+
+import logoLight from "../assets/logoLight.png";
+import logoDark from "../assets/logoDark.png";
 
 function SpotlightInput() {
   const spotlight = useSpotlight();
@@ -57,8 +62,11 @@ function Navigation() {
   if (!isAuthenticated) {
     return (
       <>
-        <Button component={Link} to="/login">
-          Login
+        <Button component={Link} to="/login" variant="outline">
+          Sign in
+        </Button>
+        <Button component={Link} to="/register">
+          Sign up
         </Button>
       </>
     );
@@ -94,9 +102,18 @@ function Navigation() {
 }
 
 export function Layout() {
+  const { colorScheme } = useMantineColorScheme();
+  const dark = colorScheme === "dark";
+
   return (
-    <>
-      <Header height={64}>
+    <div
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+    >
+      <Header
+        height={64}
+        px="md"
+        style={{ position: "sticky", left: 0, right: 0, top: 0 }}
+      >
         <div
           style={{
             display: "flex",
@@ -106,7 +123,10 @@ export function Layout() {
             flexWrap: "wrap",
           }}
         >
-          <div>Logo</div>
+          <Link to="/">
+            <Image src={dark ? logoDark : logoLight} height={32} />
+          </Link>
+
           <Group spacing="sm">
             <SpotlightInput />
             <ThemeToggle />
@@ -114,11 +134,18 @@ export function Layout() {
           </Group>
         </div>
       </Header>
-      <Space h="md" />
-      <Container>
+
+      <Container
+        py="md"
+        style={{
+          width: "100%",
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <Outlet />
       </Container>
-      <Space h="md" />
-    </>
+    </div>
   );
 }
