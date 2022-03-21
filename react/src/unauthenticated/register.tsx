@@ -15,6 +15,7 @@ import { FiAlertCircle } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useRegister } from "../api/auth";
+import { ErrorMessage } from "../components/error-message";
 
 const schema = z
   .object({
@@ -52,16 +53,7 @@ export function Register() {
           Sign up
         </Text>
 
-        {isError && error instanceof Error && (
-          <Alert
-            icon={<FiAlertCircle size={16} />}
-            title="Error!"
-            color="red"
-            variant="outline"
-          >
-            {error?.message}
-          </Alert>
-        )}
+        {isError && <ErrorMessage error={error} />}
 
         <form
           onSubmit={form.onSubmit((data) =>

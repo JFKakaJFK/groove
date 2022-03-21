@@ -4,6 +4,8 @@ imports src/entities
 imports src/views
 imports src/services
 
+imports dummydata
+
 init {
   var adminUser := User{ 
 		name := "admin", 
@@ -13,10 +15,9 @@ init {
 		newsletter := true,
 		roles := {PREMIUM, ADMIN}
 	};
-	//adminUser.save();
+
 	var grooveHabit := Habit{ name := "Groove", user := adminUser, color := teal };
 	adminUser.habits.add(grooveHabit);
-	//grooveHabit.save();
 	adminUser.save();
 
 	var proUser := User{ 
@@ -37,4 +38,7 @@ init {
 		newsletter := true
 	};
 	plebUser.save();
+
+	// loads a bunch of dummy data (yeah I opted for metaprogramming rather than WebDSL...)
+	loadData();
 }

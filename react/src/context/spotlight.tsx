@@ -1,10 +1,18 @@
 import { SpotlightProvider, useSpotlight } from "@mantine/spotlight";
 import type { SpotlightAction } from "@mantine/spotlight";
-import { ReactNode, useEffect } from "react";
-import { FiHome, FiSearch } from "react-icons/fi";
+import { ReactNode, useEffect, useRef } from "react";
+import {
+  FiBarChart2,
+  FiHome,
+  FiList,
+  FiLogIn,
+  FiLogOut,
+  FiSearch,
+} from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useAuth, useLogout } from "../api/auth";
 import { Dashboard } from "tabler-icons-react";
+import { useHabits } from "../api/habit";
 
 export interface SpotlightProps {
   children: ReactNode;
@@ -23,26 +31,35 @@ function SpotlightControls() {
       id: "login",
       group: "Navigation",
       title: "Sign in",
-      //description: "Sign ",
+      description: "Go to the sign in page",
       onTrigger: () => navigate("/login"),
-      //icon: <FiHome size={18} />,
+      icon: <FiLogIn size={18} />,
     },
     {
       id: "register",
       group: "Navigation",
       title: "Sign up",
-      //description: "Get to home page",
+      description: "Go to the sign up page",
       onTrigger: () => navigate("/register"),
-      //icon: <FiHome size={18} />,
+      icon: <FiLogIn size={18} />,
     },
   ];
   const authenticatedActions: ActionWithId[] = [
     {
+      id: "habits",
+      group: "Navigation",
+      title: "Habits",
+      description: "Go to the habit page",
+      onTrigger: () => navigate("/habits"),
+      icon: <FiList size={18} />,
+    },
+    {
       id: "logout",
+      group: "other",
       title: "Logout",
       //description: "Get to home page",
       onTrigger: () => logout.mutate(),
-      //icon: <FiHome size={18} />,
+      icon: <FiLogOut size={18} />,
     },
   ];
   const premiumActions: ActionWithId[] = [];
@@ -83,6 +100,45 @@ function SpotlightControls() {
   return null;
 }
 
+function SpotlightHabits() {
+  const spotlight = useSpotlight();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const habits = useHabits({ enabled: isAuthenticated });
+  const habitIdsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    if (Array.isArray(habits.data)) {
+      spotlight.removeActions(habitIdsRef.current);
+      spotlight.registerActions(
+        habits.data.map<ActionWithId>((h) => ({
+          id: h.id,
+          group: "Habits",
+          title: h.name,
+          description: h.description,
+          onTrigger: () => navigate(`/habits/${h.id}`),
+          icon: <FiBarChart2 size={18} style={{ color: h.color }} />,
+        }))
+      );
+      habitIdsRef.current = habits.data.map((h) => h.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [habits.data]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      spotlight.removeActions(habitIdsRef.current);
+      habitIdsRef.current = [];
+      habits.remove();
+    } else {
+      habits.refetch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
+  return null;
+}
+
 export function Spotlight({ children }: SpotlightProps) {
   const navigate = useNavigate();
 
@@ -106,6 +162,7 @@ export function Spotlight({ children }: SpotlightProps) {
       nothingFoundMessage="Nothing found..."
     >
       <SpotlightControls />
+      <SpotlightHabits />
       {children}
     </SpotlightProvider>
   );

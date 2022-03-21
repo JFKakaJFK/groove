@@ -84,7 +84,6 @@ ajax template signupA(){
 		u.save();
 		securityContext.principal := u;
 		sendVerificationEmail(u);
-		// TODO welcome email
 		notify("Welcome! You signed up successfully.");
 	  updatePage();
     replace( G.rootId, rootView() ); 

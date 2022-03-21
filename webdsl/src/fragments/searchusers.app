@@ -62,18 +62,21 @@ ajax template searchUsers(target: Placeholder, prevQuery: String, prevPage: Int)
   
   init{
     if (prevQuery.isNullOrEmpty()){ // if there is no query show all users
-      results := from User order by name asc;
+      results := from User limit 26 offset ~(page * 25) order by name asc;
+      
+      if( results.length > 25 ){
+        hasNext := true;
+        results.removeAt(25);
+      }
     } else {
       // do search
       var searcher := UserSearcher()
-        //.fields(["name", "email"])
-        //.field("name")
         .query(prevQuery)
         .setOffset(25*page)
         .setLimit(26)
         .sortAsc("name");
 
-      log(">>>>"); log(searcher.getQuery()); log(","); log(searcher.count());
+      log(">>>> [~searcher.getQuery()]: ~searcher.count() results");
 
       hasNext := searcher.count() > 25;
       results := searcher.setLimit(25).results();

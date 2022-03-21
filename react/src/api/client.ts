@@ -6,8 +6,8 @@ import ky, { ResponsePromise } from 'ky'
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // 10sec in cache before we try to get new data unless invalidated
-      staleTime: 10 * 1000, // 10s
+      // time in cache before we try to get newer data instead of relying on the cache
+      staleTime: 60 * 1000, // 1min
       cacheTime: 24 * 60 * 60 * 1000 // 24h
     }
   }
@@ -21,14 +21,24 @@ export const api = ky.create({
   prefixUrl: '/api'
 })
 
-export interface APIError {
+export interface APIErrorResponse {
   status: number;
   message: string;
 }
 
 export interface APIResponse<T> {
-  error: APIError[]
+  error: APIErrorResponse[]
   data: T
+}
+
+export class APIError extends Error {
+  status: number
+
+  constructor(status: number, message: string) {
+    super(message)
+    this.status = status
+    this.name = "APIError"
+  }
 }
 
 /**
@@ -40,9 +50,21 @@ export interface APIResponse<T> {
  */
 export async function wrapRequest<T>(req: ResponsePromise): Promise<T> {
   const res = await req.json() as APIResponse<T>
-  if (res.error?.length > 0) {
-    throw new Error(res.error[0]?.message);
+  if (Array.isArray(res.error) && res.error.length > 0) {
+    throw new APIError(res.error[0].status, res.error[0].message);
   }
-  console.log(res) // TODO remove
   return res.data
+}
+
+export function CREATE<T extends {}>(data: T) {
+  return { ...data, "_method": "CREATE" }
+}
+export function QUERY<T extends {}>(data: T) {
+  return { ...data, "_method": "QUERY" }
+}
+export function UPDATE<T extends {}>(data: T) {
+  return { ...data, "_method": "UPDATE" }
+}
+export function DELETE<T extends {}>(data: T) {
+  return { ...data, "_method": "DELETE" }
 }

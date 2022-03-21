@@ -98,7 +98,6 @@ function isOk(res: JSONObject): Bool {
   return res.getJSONArray("error").length() == 0;
 }
 
-// TODO
 function isOk(res: JSONObject, validationResults: ValidationExceptionMultiple): Bool {
   for( ex in validationResults.exceptions ){
     rollback();

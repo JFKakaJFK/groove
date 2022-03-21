@@ -34,7 +34,7 @@ service habitService(){
         "QUERY" { // id -> habit
           var habitId : String := expectString(req, res, "id");
           if ( isOk(res) ){
-            var habit : Habit := loadHabit(habitId.parseUUID());
+            var habit : Habit := findHabit(habitId);
             if ( habit != null && habit.user == principal ){
               return Ok(res, habit.json());
             } else {
@@ -78,7 +78,7 @@ service habitService(){
         "UPDATE" { // id + partial habit -> updated habit
           var habitId : String := expectString(req, res, "id");
           if ( isOk(res) ){
-            var habit : Habit := loadHabit(habitId.parseUUID());
+            var habit : Habit := findHabit(habitId);
             if ( habit != null && habit.user == principal ){
 
               var newName := optionalString(req, "name", habit.name);
@@ -109,7 +109,7 @@ service habitService(){
         "DELETE" { // id -> delete
           var habitId : String := expectString(req, res, "id");
           if ( isOk(res) ){
-            var habit : Habit := loadHabit(habitId.parseUUID());
+            var habit : Habit := findHabit(habitId);
             if ( habit != null && habit.user == principal ){
               principal.habits.remove(habit);
               principal.save();

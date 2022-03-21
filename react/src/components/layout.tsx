@@ -12,7 +12,14 @@ import {
 } from "@mantine/core";
 import { useOs } from "@mantine/hooks";
 import { useSpotlight } from "@mantine/spotlight";
-import { FiSearch, FiSun, FiMoon } from "react-icons/fi";
+import {
+  FiSearch,
+  FiSun,
+  FiMoon,
+  FiHome,
+  FiLogOut,
+  FiList,
+} from "react-icons/fi";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { GhostButton } from "./ghost-btn";
 import { DotsVertical } from "tabler-icons-react";
@@ -80,11 +87,17 @@ function Navigation() {
         </GhostButton>
       }
     >
-      <Menu.Item component={Link} to="/">
+      <Menu.Label>Application</Menu.Label>
+      <Menu.Item component={Link} to="/" icon={<FiHome size={14} />}>
         Home
       </Menu.Item>
+      <Menu.Item component={Link} to="/habits" icon={<FiList size={14} />}>
+        Habits
+      </Menu.Item>
 
+      <Menu.Label>Other</Menu.Label>
       <Menu.Item
+        icon={<FiLogOut size={14} />}
         onClick={() =>
           logout(undefined, {
             onSuccess() {

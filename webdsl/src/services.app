@@ -10,7 +10,7 @@ routing {
   receive(urlargs:[String]) {
     if(urlargs[0] == "api" && urlargs.length > 1){
       var url := [urlargs[1] + "Service"].addAll(urlargs.subList(2, urlargs.length));
-      log("[routing]: ~urlargs -> ~url");
+      //log("[routing]: ~urlargs -> ~url");
       return url;
     }
     else{
@@ -21,7 +21,7 @@ routing {
   construct (appurl:String,pagename:String, pageargs:[String]) {
     if(pagename == "api" && pageargs.length > 0){
       var url := [appurl, pageargs[0] + "Service"].addAll(pageargs.subList(1, pageargs.length));
-      log("[construct]: ~pagename/~pageargs -> ~url");
+      //log("[construct]: ~pagename/~pageargs -> ~url");
       return url;
     }
     else{

@@ -157,3 +157,12 @@ entity Habit {
 	}
 }
 
+// as opposed to loadHabit I don't want the error if not found
+function findHabit(uuid: String): Habit {
+  var matches := from Habit as h where h.id = ~uuid.parseUUID() limit 1;
+  if ( matches.length > 0 ){
+    return matches[0];
+  } else {
+    return null;
+  }
+}
