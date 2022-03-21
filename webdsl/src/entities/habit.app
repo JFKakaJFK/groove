@@ -28,6 +28,18 @@ entity Day {
 			completed := true;
 		}
 	}
+
+	cached function json(): JSONObject {
+		var o := JSONObject();
+		if( completion != null ){
+			o.put("id", completion.id);
+		} else {
+			o.put("id", id);
+		}
+		o.put("date", date.format("yyyy-MM-dd"));
+		o.put("completed", completed);
+		return o;
+	}
 }
 
 function isValidHabitName(h: Habit): Bool {

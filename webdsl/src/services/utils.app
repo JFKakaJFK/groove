@@ -52,6 +52,26 @@ function expectString(req: JSONObject, res: JSONObject, key: String): String {
     return null;
   }
 }
+function expectBool(req: JSONObject, res: JSONObject, key: String): Bool {
+  if(req.has(key) && req.getBoolean(key) != null){
+    return req.getBoolean(key);
+  } else {
+    Err(res, "Field \"~key\" is missing");
+    return null;
+  }
+}
+function expectDate(req: JSONObject, res: JSONObject, key: String): Date {
+  if(req.has(key) && req.getString(key) != null){
+    var value := Date(req.getString(key), "yyyy-MM-dd");
+    if( value == null ){
+      Err(res, "Invalid date format, expected \"yyyy-MM-dd\"");
+    }
+    return value;
+  } else {
+    Err(res, "Field \"~key\" is missing");
+    return null;
+  }
+}
 
 // hacky response building
 function Response(): JSONObject {
