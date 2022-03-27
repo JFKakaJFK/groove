@@ -62,7 +62,7 @@ ajax template searchUsers(target: Placeholder, prevQuery: String, prevPage: Int)
   
   init{
     if (prevQuery.isNullOrEmpty()){ // if there is no query show all users
-      results := from User limit 26 offset ~(page * 25) order by name asc;
+      results := from User order by name asc limit ~(page * 25), 26;
       
       if( results.length > 25 ){
         hasNext := true;

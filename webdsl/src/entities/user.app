@@ -19,8 +19,10 @@ entity User {
 	isAdmin : Bool := ADMIN in roles
 	
 	search mapping {
-		name using customAnalyzer;
-		email customAnalyzer;
+		name
+		name as partialName using customAnalyzer;
+		email
+		email as partialEmail customAnalyzer;
 	}
 
 	cached function habitInfo() : HabitInfo {
@@ -58,7 +60,7 @@ entity User {
 		o.put("isPremium", isPremium);
 		o.put("verified", verified);
 		o.put("newsletter", newsletter);
-		o.put("habitInfo", this.habitInfo().json());
+		// o.put("habitInfo", this.habitInfo().json());
 		return o;
 	}
 }

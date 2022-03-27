@@ -8,6 +8,7 @@ import {
   FiLogIn,
   FiLogOut,
   FiSearch,
+  FiUsers,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useAuth, useLogout } from "../api/auth";
@@ -45,14 +46,14 @@ function SpotlightControls() {
     },
   ];
   const authenticatedActions: ActionWithId[] = [
-    {
-      id: "habits",
-      group: "Navigation",
-      title: "Habits",
-      description: "Go to the habit page",
-      onTrigger: () => navigate("/habits"),
-      icon: <FiList size={18} />,
-    },
+    // {
+    //   id: "habits",
+    //   group: "Navigation",
+    //   title: "Habits",
+    //   description: "Go to the habit page",
+    //   onTrigger: () => navigate("/habits"),
+    //   icon: <FiList size={18} />,
+    // },
     {
       id: "logout",
       group: "other",
@@ -67,11 +68,10 @@ function SpotlightControls() {
     {
       id: "manage",
       group: "Navigation",
-      // TODO??
-      title: "Dashboard",
-      description: "Get full information about current system status",
-      onTrigger: () => console.log("Dashboard"),
-      icon: <Dashboard size={18} />,
+      title: "Manage Users",
+      description: "Go to the user management",
+      onTrigger: () => navigate("/users"),
+      icon: <FiUsers size={18} />,
     },
   ];
 

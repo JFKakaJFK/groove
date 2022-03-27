@@ -19,6 +19,7 @@ import {
   FiHome,
   FiLogOut,
   FiList,
+  FiUsers,
 } from "react-icons/fi";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { GhostButton } from "./ghost-btn";
@@ -61,7 +62,7 @@ function ThemeToggle() {
 
 function Navigation() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { mutate: logout } = useLogout();
 
   if (!isAuthenticated) {
@@ -91,9 +92,11 @@ function Navigation() {
       <Menu.Item component={Link} to="/" icon={<FiHome size={14} />}>
         Home
       </Menu.Item>
-      <Menu.Item component={Link} to="/habits" icon={<FiList size={14} />}>
-        Habits
-      </Menu.Item>
+      {user?.isAdmin && (
+        <Menu.Item component={Link} to="/users" icon={<FiUsers size={14} />}>
+          Manage Users
+        </Menu.Item>
+      )}
 
       <Menu.Label>Other</Menu.Label>
       <Menu.Item
@@ -155,7 +158,13 @@ export function Layout() {
           flexDirection: "column",
         }}
       >
-        <Outlet />
+        <Group
+          direction="column"
+          spacing="md"
+          style={{ alignItems: "stretch", justifyContent: "center", flex: 1 }}
+        >
+          <Outlet />
+        </Group>
       </Container>
     </div>
   );

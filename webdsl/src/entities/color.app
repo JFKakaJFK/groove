@@ -24,6 +24,16 @@ var fuchsia: Color := Color{ value := "#d946ef", premium := true }
 var pink:    Color := Color{ value := "#ec4899", premium := true }
 var rose:    Color := Color{ value := "#f43f5e", premium := true }
 
+function allowedColors(): [Color] {
+  if ( !loggedIn() ) {
+    return List<Color>();
+  } else if( principal.isPremium ){
+    return from Color;
+  } else {
+    return from Color as c where c.premium = false;
+  }
+}
+
 function randomColor(): Color {
 	var colors : [Color] := from Color as c where c.premium = false;
 	return colors.random();

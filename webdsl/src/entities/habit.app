@@ -31,11 +31,6 @@ entity Day {
 
 	cached function json(): JSONObject {
 		var o := JSONObject();
-		if( completion != null ){
-			o.put("id", completion.id);
-		} else {
-			o.put("id", id);
-		}
 		o.put("date", date.format("yyyy-MM-dd"));
 		o.put("completed", completed);
 		return o;
@@ -53,6 +48,8 @@ entity Habit {
 	// Adding a validation here would be the clean solution, but that did not work as expected.
 	// So I left the comment in there but instead validate separately at every point where the name can be changed which is
 	// a bit cumbersome.
+	// UPDATE 27.03: So apparently validations can be for different crud operations, but I don't want to change things any more...
+	// http://codefinder.org/viewFile/validateDelete/https%3A%5Es%5Esgithub.com%5Eswebdsl%5Eswebdsl%5Esblob%5Esmaster%5Estest%5Essucceed%5Esdata-validation%5Esinvariantscrud.app/WebDSL#1
 	name: String (searchable, not null)//, validate(!name.isNullOrEmpty(), "Required"), validate(isValidHabitName(this), "You already have a habit with this name"))
 	// this would make sense in a production setting, but for testing it is more convenient to take
 	// the first completion as start (no completionrates > 100%)
@@ -60,7 +57,10 @@ entity Habit {
 	description: Text (searchable, default = "")
 	color: Color (not null, default = randomColor(), allowed = from Color as c where c.premium = false or ~principal.isPremium = true)
 	user: User (not null) // default = principal, // crashes if i want to init some habits as there is no principal...
-	// maybe having ranges instead of single days is more performant, but I don't want to redo it...
+	// maybe having ranges/streaks (basically the DateRange entity) instead of single days is more performant, but I don't want to redo it...
+	// hindsight is 20/20: if this were to go into production, as the completions/stats are at the core of the app this would be the first
+	// thing I would need to optimize. I think updating and collecting the stats (min/max/avg/current/total) could be done in O(1) without
+	// changing too much though so thats fine for now.
 	completions <> {Completion} (inverse = habit, default = Set<Completion>())
 	// the current streak could be kept track of as derived property-ish
 	// but modifications to the longest streak would need a re-scan of all completions anyway

@@ -12,19 +12,22 @@ imports src/email
 service loginService(){
   var res := Response();
   if( isPOST() ){
-    var req := JSONObject(readRequestBody());
+    var req := Request(res);
+    if( isOk(res) ){
+      var email := expectString(req, res, "email");
+      var password := expectString(req, res, "password");
+      var stayLoggedIn := optionalBool(req, "stayLoggedIn", false);
 
-    var email := expectString(req, res, "email");
-    var password := expectString(req, res, "password");
-    var stayLoggedIn := optionalBool(req, "stayLoggedIn", false);
+      if ( isOk(res) ){
+        if( authenticate(email, password) ){
+          getSessionManager().stayLoggedIn := stayLoggedIn;
 
-    if ( isOk(res) ){
-      if( authenticate(email, password) ){
-        getSessionManager().stayLoggedIn := stayLoggedIn;
-
-        return Ok(res, principal.json());
+          return Ok(res, principal.json());
+        } else {
+          return Err(res, 401, "Invalid credentials");
+        }
       } else {
-        return Err(res, 401, "Invalid credentials");
+        return res;
       }
     } else {
       return res;
@@ -59,27 +62,30 @@ service logoutService(){
 service registerService(){
   var res := Response();
   if( isPOST() ){
-    var req := JSONObject(readRequestBody());
+    var req := Request(res);
+    if( isOk(res) ){
+      var name := expectString(req, res, "name");
+      var email := expectString(req, res, "email");
+      var password := expectString(req, res, "password");
+      var newsletter := optionalBool(req, "newsletter", false);
 
-    var name := expectString(req, res, "name");
-    var email := expectString(req, res, "email");
-    var password := expectString(req, res, "password");
-    var newsletter := optionalBool(req, "newsletter", false);
+      if ( isOk(res) ){
+        var u := User {
+          name := name
+          email := email
+          password := (password as Secret).digest()
+          verified := false
+          newsletter := newsletter
+        };
+        u.save();
 
-    if ( isOk(res) ){
-      var u := User {
-        name := name
-        email := email
-        password := (password as Secret).digest()
-        verified := false
-        newsletter := newsletter
-      };
-      u.save();
-
-      if( isOk(res, u.validateSave()) ){
-        securityContext.principal := u;
-        sendVerificationEmail(u);
-        return Ok(res, u.json());
+        if( isOk(res, u.validateSave()) ){
+          securityContext.principal := u;
+          sendVerificationEmail(u);
+          return Ok(res, u.json());
+        } else {
+          return res;
+        }
       } else {
         return res;
       }

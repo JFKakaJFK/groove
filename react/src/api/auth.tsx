@@ -18,7 +18,7 @@ export interface User {
   isPremium: boolean;
   verified: boolean;
   newsletter: boolean;
-  habitInfo: HabitInfo;
+  //habitInfo: HabitInfo;
 }
 
 const currentUser = () => wrapRequest<User>(api.post("currentUser"));
@@ -88,6 +88,9 @@ export const useLogout = () =>
   useMutation(logout, {
     onSuccess(user) {
       queryClient.setQueryData("currentUser", user);
+    },
+    onError() {
+      queryClient.invalidateQueries("currentUser");
     },
   });
 

@@ -79,7 +79,7 @@ export function Register() {
           <PasswordInput
             placeholder="Password"
             label="Password"
-            description="Password must include at least one letter, number and special character"
+            description="For development purposes no password rules are enforced"
             required
             mt="sm"
             {...form.getInputProps("password")}

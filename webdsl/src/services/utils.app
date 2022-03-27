@@ -42,6 +42,19 @@ function optionalString(req: JSONObject, key: String, default: String): String {
     return default;
   }
 }
+function optionalColor(req: JSONObject, key: String, default: Color): Color {
+  // I'm being very explicit with if/elses since WebDSL sometimes ignores returns...
+  if(req.has(key)){
+    var c := findColor(req.getString(key));
+    if( c != null ){
+      return c;
+    } else {
+      return default;
+    }
+  } else {
+    return default;
+  }
+}
 
 // expects the value to be not null as well
 function expectString(req: JSONObject, res: JSONObject, key: String): String {
@@ -70,6 +83,16 @@ function expectDate(req: JSONObject, res: JSONObject, key: String): Date {
   } else {
     Err(res, "Field \"~key\" is missing");
     return null;
+  }
+}
+
+function Request(res: JSONObject): JSONObject {
+  var body := readRequestBody();
+  if( body.isNullOrEmpty() ){
+    Err(res, "Invalid request body");
+    return null;
+  } else {
+    return JSONObject(body);
   }
 }
 

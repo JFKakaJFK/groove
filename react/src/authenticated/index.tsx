@@ -5,8 +5,8 @@ import { Layout } from "../components/layout";
 import { PageNotFound } from "../page-not-found";
 import { PermissonDenied } from "../permission-denied";
 import { Habit } from "./habit";
-import { Habits } from "./habits";
 import { Home } from "./home";
+import { Users } from "./users";
 
 function AuthenticatedLayout() {
   return (
@@ -20,8 +20,10 @@ export default function AuthenticatedApp() {
   return (
     <Routes>
       <Route element={<AuthenticatedLayout />}>
-        <Route path="/habits" element={<Habits />} />
         <Route path="/habits/:habitId" element={<Habit />} />
+
+        {/* Admin only */}
+        <Route path="/users" element={<Users />} />
 
         <Route path="/404" element={<PageNotFound />} />
         <Route path="/403" element={<PermissonDenied />} />

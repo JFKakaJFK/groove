@@ -56,15 +56,15 @@ export async function wrapRequest<T>(req: ResponsePromise): Promise<T> {
   return res.data
 }
 
-export function CREATE<T extends {}>(data: T) {
+export function CREATE<T extends object>(data: T) {
   return { ...data, "_method": "CREATE" }
 }
-export function QUERY<T extends {}>(data: T) {
+export function QUERY<T extends object>(data: T) {
   return { ...data, "_method": "QUERY" }
 }
-export function UPDATE<T extends {}>(data: T) {
+export function UPDATE<T extends object>(data: T) {
   return { ...data, "_method": "UPDATE" }
 }
-export function DELETE<T extends {}>(data: T) {
+export function DELETE<T extends object>(data: T) {
   return { ...data, "_method": "DELETE" }
 }
