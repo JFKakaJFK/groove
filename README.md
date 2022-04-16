@@ -1,9 +1,11 @@
-<img style="margin: 0 auto;" src="./webdsl/images/logo.png" />
+<img style="margin: 0 auto;width:256px" src="./webdsl/images/logo.png" />
 
-# Groove
+A simple Habit Tracker with a WebDSL and a React frontend.
 
-A simple Habit Tracker.
-
-## Screenshots
+## WebDSL Screenshots
 
 ![](./webdsl/habits.png)
+
+## React Screenshots
+
+![](./react/screens.png)

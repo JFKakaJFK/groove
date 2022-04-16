@@ -9,6 +9,7 @@ The main app idea is the same as for Assignment 1:
 > The goal is to have a convenient way to keep track of habits and to motivate forming new habits with streaks. A user can have multiple habits, which in turn can be completed daily. Consecutive daily habit completions form streaks.
 
 Similarly to the WebDSL counterpart, apart fromt the habit related features, the react application supports logging in, signing up and managing users.
+The source code can be found at [GitHub](https://github.com/JFKakaJFK/groove).
 
 ### Architecture and Choices
 
