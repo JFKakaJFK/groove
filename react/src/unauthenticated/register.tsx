@@ -1,5 +1,4 @@
 import {
-  Alert,
   Button,
   Card,
   Center,
@@ -11,7 +10,6 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
-import { FiAlertCircle } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useRegister } from "../api/auth";

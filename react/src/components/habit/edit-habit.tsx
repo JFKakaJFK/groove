@@ -1,20 +1,18 @@
 import {
   ActionIcon,
   Button,
-  ColorSwatch,
   Group,
   Modal,
   Textarea,
   TextInput,
-  ColorInput as ColorInputM,
 } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
 import { useState } from "react";
 import { FiEdit3 } from "react-icons/fi";
 import { z } from "zod";
-import { Habit as HabitT, useUpdateHabit } from "../api/habit";
-import { ColorInput } from "./color-input";
-import { ErrorMessage } from "./error-message";
+import { Habit as HabitT, useUpdateHabit } from "../../api/habit";
+import { ColorInput } from "../color-input";
+import { ErrorMessage } from "../error-message";
 
 const schema = z.object({
   name: z.string().nonempty("Required"),

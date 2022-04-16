@@ -10,8 +10,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { APIError } from "../api/client";
 import { Habit as HabitT, useHabit } from "../api/habit";
-import { DeleteHabit } from "../components/delete-habit";
-import { EditHabit } from "../components/edit-habit";
+import { EditHabit, DeleteHabit } from "../components/habit";
 import { ErrorMessage } from "../components/error-message";
 import { Completions } from "../components/completions";
 

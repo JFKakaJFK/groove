@@ -10,9 +10,9 @@ import { useForm, zodResolver } from "@mantine/form";
 import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import { z } from "zod";
-import { useCreateHabit } from "../api/habit";
-import { ColorInput } from "./color-input";
-import { ErrorMessage } from "./error-message";
+import { useCreateHabit } from "../../api/habit";
+import { ColorInput } from "../color-input";
+import { ErrorMessage } from "../error-message";
 
 const schema = z.object({
   name: z.string().nonempty("Required"),

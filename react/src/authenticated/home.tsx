@@ -1,7 +1,7 @@
 import { Button, Card, Group, Text } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { useAuth } from "../api/auth";
-import { Habits } from "../components/habits";
+import { Habits } from "../components/habit";
 
 export function Home() {
   const { user } = useAuth();

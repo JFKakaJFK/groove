@@ -18,7 +18,6 @@ import {
   FiMoon,
   FiHome,
   FiLogOut,
-  FiList,
   FiUsers,
 } from "react-icons/fi";
 import { Link, Outlet, useNavigate } from "react-router-dom";

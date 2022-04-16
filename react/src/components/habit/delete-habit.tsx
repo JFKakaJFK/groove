@@ -2,7 +2,7 @@ import { ActionIcon, Button, Group, Modal } from "@mantine/core";
 import { useState } from "react";
 import { FiTrash2 } from "react-icons/fi";
 import { To, useNavigate } from "react-router-dom";
-import { Habit as HabitT, useDeleteHabit } from "../api/habit";
+import { Habit as HabitT, useDeleteHabit } from "../../api/habit";
 
 export function DeleteHabit({ habit, to }: { habit: HabitT; to: To }) {
   const [open, setOpen] = useState<boolean>(false);

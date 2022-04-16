@@ -4,7 +4,6 @@ import { ReactNode, useEffect, useRef } from "react";
 import {
   FiBarChart2,
   FiHome,
-  FiList,
   FiLogIn,
   FiLogOut,
   FiSearch,
@@ -12,7 +11,6 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useAuth, useLogout } from "../api/auth";
-import { Dashboard } from "tabler-icons-react";
 import { useHabits } from "../api/habit";
 
 export interface SpotlightProps {

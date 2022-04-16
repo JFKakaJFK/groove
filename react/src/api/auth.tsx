@@ -23,6 +23,9 @@ export interface User {
 
 const currentUser = () => wrapRequest<User>(api.post("currentUser"));
 
+// prefetch the currentUser once immediately so that we can show UI quicker
+queryClient.prefetchQuery("currentUser", currentUser);
+
 const login = (creds: Credentials) =>
   wrapRequest<User>(api.post("login", { json: creds }));
 
@@ -87,6 +90,7 @@ export const useRegister = () =>
 export const useLogout = () =>
   useMutation(logout, {
     onSuccess(user) {
+      queryClient.invalidateQueries(); // invalidate all queries
       queryClient.setQueryData("currentUser", user);
     },
     onError() {

@@ -14,8 +14,8 @@ import {
 import { SyntheticEvent } from "react";
 import { FiCheckCircle, FiCircle } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { Habit, useCompletion, useHabit, useHabits } from "../api/habit";
-import { ErrorMessage } from "./error-message";
+import { Habit, useCompletion, useHabit, useHabits } from "../../api/habit";
+import { ErrorMessage } from "../error-message";
 import { CreateHabit } from "./create-habit";
 
 function HabitRow({ habit }: { habit: Habit }) {
@@ -207,6 +207,16 @@ export function Habits() {
 
       {isLoading || !habits ? (
         <HabitSkeletonList />
+      ) : habits.length === 0 ? (
+        <Group
+          direction="column"
+          align="center"
+          spacing="xs"
+          sx={{ minHeight: 128, justifyContent: "center" }}
+        >
+          <Text>So few habits, much empty</Text>
+          <CreateHabit />
+        </Group>
       ) : (
         <HabitList habits={habits} />
       )}

@@ -10,13 +10,11 @@ import {
   ScrollArea,
   Table,
   Text,
-  Switch,
   TextInput,
   Title,
-  ActionIcon,
 } from "@mantine/core";
 import { useMemo, useState } from "react";
-import { useAuth, User } from "../api/auth";
+import { User } from "../api/auth";
 import { usePromoteUser, useUsers } from "../api/user";
 import { Authorized } from "../components/authenticated";
 import { ErrorMessage } from "../components/error-message";
@@ -52,13 +50,7 @@ import { ColumnFiltersState } from "@tanstack/react-table/build/types/features/F
 
 /// <reference types="@tanstack/react-table/build/types/utils" />
 import { functionalUpdate } from "@tanstack/react-table/build/cjs/utils";
-import {
-  FiAward,
-  FiChevronDown,
-  FiChevronUp,
-  FiSearch,
-  FiTrash2,
-} from "react-icons/fi";
+import { FiAward, FiChevronDown, FiChevronUp, FiSearch } from "react-icons/fi";
 import { DeleteUser } from "../components/delete-user";
 
 function UserFilter({
@@ -72,11 +64,18 @@ function UserFilter({
     instance.getPreColumnFilteredFlatRows()[0].values[column.id];
 
   return typeof firstValue === "boolean" ? (
-    <Switch
-      checked={(column.getColumnFilterValue() ?? false) as boolean}
+    <Checkbox
+      checked={(column.getColumnFilterValue() ?? true) as boolean}
+      indeterminate={typeof column.getColumnFilterValue() !== "boolean"}
       onChange={(e) => {
-        console.log(e);
-        column.setColumnFilterValue(e.currentTarget.checked);
+        const prev = column.getColumnFilterValue();
+        column.setColumnFilterValue(
+          prev
+            ? false // true -> false
+            : prev === false
+            ? undefined // false -> no filter
+            : true // no filter -> true
+        );
       }}
     />
   ) : (
@@ -103,13 +102,13 @@ function AllUsersTable() {
         allUsersTable.createDataColumn("verified", {
           header: "Verified",
           cell({ value }) {
-            return <Checkbox checked={value} readOnly />;
+            return <Checkbox checked={value} disabled readOnly />;
           },
         }),
         allUsersTable.createDataColumn("newsletter", {
           header: "Subscribed",
           cell({ value }) {
-            return <Checkbox checked={value} readOnly />;
+            return <Checkbox checked={value} disabled readOnly />;
           },
         }),
         allUsersTable.createDataColumn("isPremium", {
@@ -142,6 +141,7 @@ function AllUsersTable() {
           },
         }),
       ]),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -302,8 +302,6 @@ function AllUsersTable() {
 }
 
 export function Users() {
-  const { user } = useAuth();
-
   return (
     <Authorized admin>
       <Card sx={{ alignSelf: "top", maxWidth: "100%" }}>
